@@ -96,7 +96,7 @@ static CblString *stringCallback(CblScalar *scalar) {
     return CBL_STR("(null)");
 }
 
-static CblClass NUMBER_CLASS = {
+static CblClass SCALAR_CLASS = {
         .name = "CblScalar",
         .finalizeCallback = NULL,
         .hashCallback = (CblObjectHashCallback)hashCallback,
@@ -104,7 +104,7 @@ static CblClass NUMBER_CLASS = {
         .stringCallback = (CblObjectStringCallback)stringCallback
 };
 
-CblClass * const CBL_SCALAR_CLASS = &NUMBER_CLASS;
+CblClass * const CBL_SCALAR_CLASS = &SCALAR_CLASS;
 
 static CblScalar *createRawNumber(CblAllocator *alloc, Species species, ...) {
     CblScalar *scalar = cblAllocatorAllocate(alloc, sizeof(CblScalar));
