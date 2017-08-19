@@ -40,58 +40,19 @@ static size_t hashCallback(CblScalar *scalar) {
     return false;
 }
 
-static CBL_INLINE CblString *fromDouble(CblAllocator *alloc, double value) {
-    int count = snprintf(NULL, 0, "%g", value);
-    cblReturnUnless(count > 0, CBL_STR("(null)"));
-    size_t size = (size_t)count;
-    char *bytes = cblAllocatorAllocate(alloc, size + 1);
-    cblReturnUnless(bytes, CBL_STR("(null)"));
-    snprintf(bytes, size + 1, "%g", value);
-    CblString *string = cblStringNewWithBytes(alloc, (uint8_t *)bytes, size);
-    cblAllocatorDeallocate(alloc, bytes);
-    cblReturnUnless(string, CBL_STR("(null)"));
-    return string;
-}
-
-static CblString *fromSize(CblAllocator *alloc, ssize_t value) {
-    int count = snprintf(NULL, 0, "%zd", value);
-    cblReturnUnless(count > 0, CBL_STR("(null)"));
-    size_t size = (size_t)count;
-    char *bytes = cblAllocatorAllocate(alloc, size + 1);
-    cblReturnUnless(bytes, CBL_STR("(null)"));
-    snprintf(bytes, size + 1, "%zd", value);
-    CblString *string = cblStringNewWithBytes(alloc, (uint8_t *)bytes, size);
-    cblAllocatorDeallocate(alloc, bytes);
-    cblReturnUnless(string, CBL_STR("(null)"));
-    return string;
-}
-
-static CBL_INLINE CblString *fromUSize(CblAllocator *alloc, size_t value) {
-    int count = snprintf(NULL, 0, "%zu", value);
-    cblReturnUnless(count > 0, CBL_STR("(null)"));
-    size_t size = (size_t)count;
-    char *bytes = cblAllocatorAllocate(alloc, size + 1);
-    cblReturnUnless(bytes, CBL_STR("(null)"));
-    snprintf(bytes, size + 1, "%zu", value);
-    CblString *string = cblStringNewWithBytes(alloc, (uint8_t *)bytes, size);
-    cblAllocatorDeallocate(alloc, bytes);
-    cblReturnUnless(string, CBL_STR("(null)"));
-    return string;
-}
-
 static CblString *stringCallback(CblScalar *scalar) {
     switch (scalar->species) {
         case BOOL:
             return CBL_STR(scalar->as.boolValue? "1" : "0");
 
         case DOUBLE:
-            return fromDouble(cblGetAllocator(scalar), scalar->as.doubleValue);
+            return cblStringNewFromCFormat(NULL, "%g", scalar->as.doubleValue);
 
         case SIZE:
-            return fromSize(cblGetAllocator(scalar), scalar->as.sizeValue);
+            return cblStringNewFromCFormat(NULL, "%zd", scalar->as.doubleValue);
 
         case USIZE:
-            return fromUSize(cblGetAllocator(scalar), scalar->as.uSizeValue);
+            return cblStringNewFromCFormat(NULL, "%zu", scalar->as.doubleValue);
     }
     return CBL_STR("(null)");
 }
@@ -345,7 +306,7 @@ uintptr_t cblScalarUIntPointerValue(CblScalar *scalar) {
 }
 
 CblCmp cblScalarCompare(CblScalar *lhs, CblScalar *rhs) {
-    cblReturnUnless(lhs && rhs, false);
+    cblReturnUnless(lhs && rhs, CBL_CMP_GREATER);
     switch (lhs->species) {
         case BOOL:
             cblReturnUnless(rhs->species == BOOL, false);

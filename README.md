@@ -9,6 +9,9 @@ The foundational runtime library and data structures.
 * **<cable/core/object.h>**
 Routines for doing thread-safe reference counting memory management and limited OOP.
 
+* **<cable/core/error.h>**
+Error handling.
+
 * **<cable/core/allocator.h>**
 Create and work with custom memory allocators.
 Provides a wrapper for malloc/free that plays nice with reference counting.

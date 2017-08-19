@@ -59,7 +59,7 @@ CblMutableData *cblMutableDataNewCopy(CblAllocator *alloc, CblData *data) {
 }
 
 CblCmp cblDataCompare(CblData *lhs, CblData *rhs) {
-    cblReturnUnless(lhs && rhs, false);
+    cblReturnUnless(lhs && rhs, CBL_CMP_GREATER);
     int res = memcmp(lhs->buffer, rhs->buffer, (lhs->length < rhs->length) ? lhs->length : rhs->length);
     if (res < 0) {
         return CBL_CMP_LESSER;

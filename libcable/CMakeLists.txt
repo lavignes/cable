@@ -9,6 +9,7 @@ set(HEADERS
 
         include/cable/core.h
         include/cable/core/object.h
+        include/cable/core/error.h
         include/cable/core/allocator.h
         include/cable/core/data.h
         include/cable/core/string.h
@@ -31,6 +32,7 @@ set(SOURCES
         src/test.c
 
         src/core/object.c
+        src/core/error.c
         src/core/allocator.c
         src/core/data.c
         src/core/string.c

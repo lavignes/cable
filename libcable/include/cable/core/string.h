@@ -20,13 +20,9 @@ CblString *cblStringNewNoCopy(CblAllocator *alloc, const uint8_t *bytes, size_t 
 
 CblString *cblStringNewFromCString(CblAllocator *alloc, const char *string);
 
-CblString *cblStringNewInterp(CblAllocator *alloc, const char *interp, ...);
+CblString *cblStringNewFromCFormat(CblAllocator *alloc, const char *format, ...);
 
-CblString *cblStringNewInterpTransfer(CblAllocator *alloc, const char *interp, ...);
-
-CblString *cblStringNewInterpList(CblAllocator *alloc, const char *interp, va_list args);
-
-CblString *cblStringNewInterpListTransfer(CblAllocator *alloc, const char *interp, va_list args);
+CblString *cblStringNewFromCFormatList(CblAllocator *alloc, const char *format, va_list args);
 
 CblString *cblStringNewCopy(CblAllocator *alloc, CblString *string);
 
@@ -36,15 +32,11 @@ CblMutableString *cblMutableStringNewWithBytes(CblAllocator *alloc, const uint8_
 
 CblMutableString *cblMutableStringNewFromCString(CblAllocator *alloc, const char *string);
 
+CblMutableString *cblMutableStringNewFromCFormat(CblAllocator *alloc, const char *format, ...);
+
+CblMutableString *cblMutableStringNewFromCFormatList(CblAllocator *alloc, const char *format, va_list args);
+
 CblMutableString *cblMutableStringNewCopy(CblAllocator *alloc, CblString *string);
-
-CblMutableString *cblMutableStringNewInterp(CblAllocator *alloc, const char *interp, ...);
-
-CblMutableString *cblMutableStringNewInterpTransfer(CblAllocator *alloc, const char *interp, ...);
-
-CblMutableString *cblMutableStringNewInterpList(CblAllocator *alloc, const char *interp, va_list args);
-
-CblMutableString *cblMutableStringNewInterpListTransfer(CblAllocator *alloc, const char *interp, va_list args);
 
 CblCmp cblStringCompare(CblString *lhs, CblString *rhs);
 
@@ -65,5 +57,9 @@ void cblStringAppendTransfer(CblMutableString *string, CblString *append);
 void cblStringAppendBytes(CblMutableString *string, const uint8_t *bytes, size_t length);
 
 void cblStringAppendCString(CblMutableString *string, const char *cstring);
+
+void cblStringAppendCFormat(CblMutableString *string, const char *format, ...);
+
+void cblStringAppendCFormatList(CblMutableString *string, const char *format, va_list args);
 
 #endif // CBL_CORE_STRING_H_

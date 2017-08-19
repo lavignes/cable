@@ -4,8 +4,6 @@
 #include <cable/core/data.h>
 #include <cable/core/allocator.h>
 
-static const size_t DEFAULT_FORMAT_BUFFER_SIZE = 16;
-
 static const int CONTINUATION_BYTES[256] = {
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -42,44 +40,6 @@ struct CblString {
     size_t length;
     size_t hash;
 };
-
-static CblMutableString *createInterpolatedString(CblAllocator *alloc,
-                                                  const char *interp,
-                                                  bool transfer,
-                                                  va_list args) {
-    // TODO: This is a crummy implementation of string interpolation
-    cblReturnUnless(interp, NULL);
-    CblMutableData *buffer = cblMutableDataNew(alloc, DEFAULT_FORMAT_BUFFER_SIZE);
-    cblReturnUnless(buffer, NULL);
-    cblDataSetLength(buffer, 0);
-    uint8_t *copyStart = (uint8_t *)interp;
-    for (uint8_t *iter = copyStart; *iter; iter = (uint8_t *)utf8Next(iter)) {
-        // Next thing is a specifier
-        if (*iter == '%') {
-            // Flush buffer up to this point :)
-            if (copyStart < iter) {
-                cblDataAppendBytes(buffer, copyStart, (size_t)(iter - copyStart));
-            }
-            CblObject *obj = va_arg(args, CblObject *);
-            CblString *repr = cblGetString(obj);
-            if (transfer) {
-                cblDisown(obj);
-            }
-            cblDataAppendBytes(buffer, cblDataGetBytePointer(repr->buffer), cblDataGetLength(repr->buffer));
-            cblDisown(repr);
-            copyStart = iter + 1;
-        } else if (*(iter + 1) == 0 && copyStart < iter) {
-            // If we are about to hit the end of the string and haven't flushed
-            cblDataAppendBytes(buffer, copyStart, (size_t)(iter - copyStart + 1));
-            copyStart = iter;
-        }
-    }
-    CblMutableString *string = cblMutableStringNewWithBytes(alloc,
-                                                            cblDataGetBytePointer(buffer),
-                                                            cblDataGetLength(buffer));
-    cblDisown(buffer);
-    return string;
-}
 
 static void finalize(CblString *data) {
     cblDisown(data->buffer);
@@ -129,28 +89,16 @@ CblString *cblStringNewFromCString(CblAllocator *alloc, const char *string) {
     return cblMutableStringNewFromCString(alloc, string);
 }
 
-CblString *cblStringNewInterp(CblAllocator *alloc, const char *interp, ...) {
+CblString *cblStringNewFromCFormat(CblAllocator *alloc, const char *format, ...) {
     va_list args;
-    va_start(args, interp);
-    CblString *string = cblMutableStringNewInterpList(alloc, interp, args);
+    va_start(args, format);
+    CblString *string = cblMutableStringNewFromCFormatList(alloc, format, args);
     va_end(args);
     return string;
 }
 
-CblString *cblStringNewInterpTransfer(CblAllocator *alloc, const char *interp, ...) {
-    va_list args;
-    va_start(args, interp);
-    CblString *string = cblMutableStringNewInterpListTransfer(alloc, interp, args);
-    va_end(args);
-    return string;
-}
-
-CblString *cblStringNewInterpList(CblAllocator *alloc, const char *interp, va_list args) {
-    return cblMutableStringNewInterpList(alloc, interp, args);
-}
-
-CblString *cblStringNewInterpListTransfer(CblAllocator *alloc, const char *interp, va_list args) {
-    return cblMutableStringNewInterpListTransfer(alloc, interp, args);
+CblString *cblStringNewFromCFormatList(CblAllocator *alloc, const char *format, va_list args) {
+    return cblMutableStringNewFromCFormatList(alloc, format, args);
 }
 
 CblString *cblStringNewCopy(CblAllocator *alloc, CblString *string) {
@@ -180,38 +128,35 @@ CblMutableString *cblMutableStringNewFromCString(CblAllocator *alloc, const char
     return cblMutableStringNewWithBytes(alloc, (const uint8_t *)string, strlen(string));
 }
 
+CblMutableString *cblMutableStringNewFromCFormat(CblAllocator *alloc, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    CblMutableString *string = cblMutableStringNewFromCFormatList(alloc, format, args);
+    va_end(args);
+    return string;
+}
+
+CblMutableString *cblMutableStringNewFromCFormatList(CblAllocator *alloc, const char *format, va_list args) {
+    int count = vsnprintf(NULL, 0, format, args);
+    cblReturnUnless(count > 0, NULL);
+    size_t size = (size_t)count;
+    char *bytes = cblAllocatorAllocate(alloc, size + 1);
+    cblReturnUnless(bytes, NULL);
+    snprintf(bytes, size + 1, format, args);
+    CblMutableString *string = cblMutableStringNewWithBytes(alloc, (uint8_t *)bytes, size);
+    cblAllocatorDeallocate(alloc, bytes);
+    cblReturnUnless(string, NULL);
+    return string;
+}
+
 CblMutableString *cblMutableStringNewCopy(CblAllocator *alloc, CblString *string) {
     cblReturnUnless(string, NULL);
     CblData *data = string->buffer;
     return cblMutableStringNewWithBytes(alloc, cblDataGetBytePointer(data), cblDataGetLength(data));
 }
 
-CblMutableString *cblMutableStringNewInterp(CblAllocator *alloc, const char *interp, ...) {
-    va_list args;
-    va_start(args, interp);
-    CblMutableString *string = createInterpolatedString(alloc, interp, false, args);
-    va_end(args);
-    return string;
-}
-
-CblMutableString *cblMutableStringNewInterpTransfer(CblAllocator *alloc, const char *interp, ...) {
-    va_list args;
-    va_start(args, interp);
-    CblMutableString *string = createInterpolatedString(alloc, interp, true, args);
-    va_end(args);
-    return string;
-}
-
-CblMutableString *cblMutableStringNewInterpList(CblAllocator *alloc, const char *interp, va_list args) {
-    return createInterpolatedString(alloc, interp, false, args);
-}
-
-CblMutableString *cblMutableStringNewInterpListTransfer(CblAllocator *alloc, const char *interp, va_list args) {
-    return createInterpolatedString(alloc, interp, true, args);
-}
-
 CblCmp cblStringCompare(CblString *lhs, CblString *rhs) {
-    cblReturnUnless(lhs && rhs, false);
+    cblReturnUnless(lhs && rhs, CBL_CMP_GREATER);
     return cblDataCompare(lhs->buffer, rhs->buffer);
 }
 
@@ -263,4 +208,16 @@ void cblStringAppendCString(CblMutableString *string, const char *cstring) {
     size_t length = strlen(cstring);
     cblDataAppendBytes(string->buffer, (const uint8_t *)cstring, length);
     string->length += utf8Strnlen((const uint8_t *)cstring, length);
+}
+
+void cblStringAppendCFormat(CblMutableString *string, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    cblStringAppendCFormatList(string, format, args);
+    va_end(args);
+}
+
+void cblStringAppendCFormatList(CblMutableString *string, const char *format, va_list args) {
+    cblBailUnless(string && format);
+    cblStringAppendTransfer(string, cblStringNewFromCFormatList(cblGetAllocator(string), format, args));
 }
