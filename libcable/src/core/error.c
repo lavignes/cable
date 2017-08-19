@@ -17,9 +17,9 @@ static void finalizeCallback(CblError *error) {
     cblDisown(error->reason);
 }
 
-static CblString *stringCallback(CblError *error) {
+static CblString *stringCallback(CblAllocator *alloc, CblError *error) {
     cblReturnUnless(error, NULL);
-    CblMutableString *string = cblMutableStringNewCopy(NULL, error->domain);
+    CblMutableString *string = cblMutableStringNewCopy(alloc, error->domain);
     cblStringAppendCFormat(string, ": (%d)", error->code);
     if (error->reason) {
         cblStringAppendCString(string, " ");
