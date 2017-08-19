@@ -23,7 +23,7 @@ typedef union {
     struct {
         double x_, y_;
     };
-} _Cbl2dSIMDUnion;
+} Cbl2dSIMDUnion_;
 
 CBL_INLINE Cbl2d cbl2dNew(double x, double y) {
     return _mm_setr_pd(x, y);
@@ -46,7 +46,7 @@ CBL_INLINE bool cbl2dGreaterThan(Cbl2d lhs, Cbl2d rhs) {
 }
 
 CBL_INLINE Cbl2d cbl2dMap(Cbl2d v2d, double (*fn)(double)) {
-    _Cbl2dSIMDUnion u = {v2d};
+    Cbl2dSIMDUnion_ u = {v2d};
     return cbl2dNew(fn(u.x_), fn(u.y_));
 }
 
@@ -59,12 +59,12 @@ CBL_INLINE void cbl2dStore(Cbl2d v2d, double *arr) {
 }
 
 CBL_INLINE double cbl2dGetX(Cbl2d v2d) {
-    _Cbl2dSIMDUnion u = {v2d};
+    Cbl2dSIMDUnion_ u = {v2d};
     return u.x_;
 }
 
 CBL_INLINE double cbl2dGetY(Cbl2d v2d) {
-    _Cbl2dSIMDUnion u = {v2d};
+    Cbl2dSIMDUnion_ u = {v2d};
     return u.y_;
 }
 
@@ -103,7 +103,7 @@ CBL_INLINE Cbl2d cbl2dRecip(Cbl2d v2d) {
 }
 
 CBL_INLINE Cbl2d cbl2dSqrt(Cbl2d v2d) {
-    _Cbl2dSIMDUnion u = {v2d};
+    Cbl2dSIMDUnion_ u = {v2d};
     return cbl2dNew(sqrt(u.x_), sqrt(u.y_));
 }
 
@@ -116,8 +116,8 @@ CBL_INLINE Cbl2d cbl2dRecipSqrt(Cbl2d v2d) {
 }
 
 CBL_INLINE double cbl2dCross(Cbl2d lhs, Cbl2d rhs) {
-    _Cbl2dSIMDUnion u1 = {lhs};
-    _Cbl2dSIMDUnion u2 = {rhs};
+    Cbl2dSIMDUnion_ u1 = {lhs};
+    Cbl2dSIMDUnion_ u2 = {rhs};
     return u1.x_ * u2.y_ - u1.y_ * u2.x_;
 }
 
