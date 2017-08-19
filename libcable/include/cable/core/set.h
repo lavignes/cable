@@ -11,7 +11,7 @@ typedef const void *(*CblSetOwnCallback)(CblSet *set, const void *element);
 typedef void (*CblSetDisownCallback)(CblSet *set, const void *element);
 typedef CblCmp (*CblSetCompareCallback)(const void *lhs, const void *rhs);
 typedef size_t (*CblSetHashCallback)(const void *element);
-typedef CblString *(*CblSetStringCallback)(const void *element);
+typedef CblString *(*CblSetStringCallback)(CblAllocator *alloc, const void *element);
 typedef bool (*CblSetForeachFunction)(CblSet *set, const void *element, void *userData);
 
 typedef struct CblSetContext {

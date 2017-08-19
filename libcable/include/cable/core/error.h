@@ -8,11 +8,9 @@ CBL_EXTERN_BEGIN
 typedef struct CblError CblError;
 CblClass * const CBL_ERROR_CLASS;
 
-#define CBL_ERROR_REASON(domain, code, reason) cblErrorNewWithReasonTransfer(NULL, (domain), (code), (reason))
-
-#define CBL_ERROR(domain, code) CBL_ERROR_REASON(domain, code, NULL)
-
 CblError *cblErrorNew(CblAllocator *alloc, CblString *domain, int code);
+
+CblError *cblErrorNewFromErrno(CblAllocator *alloc, int code);
 
 CblError *cblErrorNewTransfer(CblAllocator *alloc, CblString *domain, int code);
 

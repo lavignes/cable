@@ -9,7 +9,7 @@ static CblArrayContext OBJECT_CONTEXT = {
         .ownCallback = (CblArrayOwnCallback)cblOwnInOwner,
         .disownCallback = (CblArrayDisownCallback)cblDisownInOwner,
         .compareCallback = cblCompare,
-        .stringCallback = cblGetString
+        .stringCallback = cblGetString,
 };
 
 const CblArrayContext * const CBL_ARRAY_CONTEXT_OBJECTS = &OBJECT_CONTEXT;
@@ -56,15 +56,15 @@ CBL_INLINE static size_t getDataVirtualLength(CblData *data) {
 return cblDataGetLength(data) / sizeof(void *);
 }
 
-static CblString *stringCallback(CblMutableArray *array) {
+static CblString *stringCallback(CblAllocator *alloc, CblMutableArray *array) {
     cblReturnUnless(array, NULL);
     const CblArrayContext *context = &array->context;
     cblReturnUnless(context->stringCallback, NULL);
-    CblMutableString *string = cblMutableStringNewFromCString(NULL, "[");
+    CblMutableString *string = cblMutableStringNewFromCString(alloc, "[");
     size_t length = getDataVirtualLength(array->buffer);
     const void **buffer = (const void **)cblDataGetBytePointer(array->buffer);
     for (size_t i = 0; i < length; ++i) {
-        cblStringAppendTransfer(string, context->stringCallback(buffer[i]));
+        cblStringAppendTransfer(string, context->stringCallback(alloc, buffer[i]));
         if (i < length - 1) {
             cblStringAppendCString(string, ", ");
         }

@@ -1,3 +1,5 @@
+#include <errno.h>
+
 #include <cable/core/error.h>
 #include <cable/core/string.h>
 #include <cable/core/allocator.h>
@@ -40,6 +42,12 @@ CblError *cblErrorNew(CblAllocator *alloc, CblString *domain, int code) {
     return cblErrorNewWithReason(alloc, domain, code, NULL);
 }
 
+CblError *cblErrorNewFromErrno(CblAllocator *alloc, int code) {
+    CblString *reason = cblStringNewFromCString(alloc, strerror(code));
+    cblReturnUnless(reason, NULL);
+    return cblErrorNewWithReasonTransfer(alloc, NULL, code, reason);
+}
+
 CblError *cblErrorNewTransfer(CblAllocator *alloc, CblString *domain, int code) {
     return cblErrorNewWithReasonTransfer(alloc, domain, code, NULL);
 }
@@ -48,7 +56,7 @@ CblError *cblErrorNewWithReason(CblAllocator *alloc, CblString *domain, int code
     CblError *error = cblAllocatorAllocate(alloc, sizeof(CblError));
     cblReturnUnless(error, NULL);
     cblInitialize(error, alloc, &ERROR_CLASS);
-    error->domain = domain ?: CBL_STR("CblError");
+    error->domain = domain ?: cblStringNewFromCString(alloc, "Error");
     error->code = code;
     error->reason = reason;
     return error;

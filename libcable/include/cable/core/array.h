@@ -14,7 +14,7 @@ CblClass * const CBL_ARRAY_CLASS;
 typedef const void *(*CblArrayOwnCallback)(CblArray *array, const void *element);
 typedef void (*CblArrayDisownCallback)(CblArray *array, const void *element);
 typedef CblCmp (*CblArrayCompareCallback)(const void *lhs, const void *rhs);
-typedef CblString *(*CblArrayStringCallback)(const void *element);
+typedef CblString *(*CblArrayStringCallback)(CblAllocator *alloc, const void *element);
 typedef bool (*CblArrayForeachFunction)(CblArray *array, const void *element, size_t index, void *userData);
 
 typedef struct CblArrayContext {
@@ -26,8 +26,6 @@ typedef struct CblArrayContext {
 
 const CblArrayContext * const CBL_ARRAY_CONTEXT_OBJECTS;
 const CblArrayContext * const CBL_ARRAY_CONTEXT_ALLOCS;
-
-#define CBL_ARRAY(...) cblArrayNewArgsTransfer(NULL, NULL, ##__VA_ARGS__, NULL)
 
 CblArray *cblArrayNew(CblAllocator *alloc, const CblArrayContext *context, const void **elements, size_t length);
 

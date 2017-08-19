@@ -17,7 +17,7 @@ static CblSetContext OBJECT_CONTEXT = {
         .disownCallback = (CblSetDisownCallback)cblDisownInOwner,
         .compareCallback = cblCompare,
         .hashCallback = cblGetHash,
-        .stringCallback = cblGetString
+        .stringCallback = cblGetString,
 };
 
 const CblSetContext * const CBL_SET_CONTEXT_OBJECTS = &OBJECT_CONTEXT;
@@ -49,11 +49,11 @@ CBL_INLINE static size_t getDataVirtualLength(CblData *data) {
     return cblDataGetLength(data) / sizeof(Bucket);
 }
 
-static CblString *stringCallback(CblMutableSet *set) {
+static CblString *stringCallback(CblAllocator *alloc, CblMutableSet *set) {
     cblReturnUnless(set, NULL);
     const CblSetContext *context = &set->context;
     cblReturnUnless(context->stringCallback, NULL);
-    CblMutableString *string = cblMutableStringNewFromCString(NULL, "{");
+    CblMutableString *string = cblMutableStringNewFromCString(alloc, "{");
     size_t size = getDataVirtualLength(set->buffer);
     const Bucket *buckets = (Bucket *)cblDataGetBytePointer(set->buffer);
     const void *element;
@@ -62,7 +62,7 @@ static CblString *stringCallback(CblMutableSet *set) {
         if (!element || element == DUMMY) {
             continue;
         }
-        cblStringAppendTransfer(string, context->stringCallback(element));
+        cblStringAppendTransfer(string, context->stringCallback(alloc, element));
         if (j < set->length - 1) {
             cblStringAppendCString(string, ", ");
         }

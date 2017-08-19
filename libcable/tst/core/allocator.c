@@ -2,7 +2,7 @@
 #include <cable/core.h>
 
 CBL_TEST_REPORT {
-    cblStringLogTransfer(cblGetString(cblTestEnv));
+    cblStringLogTransfer(cblGetString(NULL, cblTestEnv));
 }
 
 CBL_TEST(defaultAllocatorIsMalloc) {
@@ -19,14 +19,16 @@ CBL_TEST(defaultAllocatorIsMalloc) {
 
 CBL_TEST(allocatorsAreRetainedByTheirAllocations) {
     CblAllocator *allocator = cblAllocatorNew(NULL, NULL);
-    CblScalar *num = cblScalarNewBool(allocator, true);
-    cblDisown(allocator);
     cblTestIsTrue(cblGetRefCount(allocator) == 1);
+    CblScalar *num = cblScalarNewBool(allocator, true);
+    cblTestIsTrue(cblGetRefCount(allocator) == 2);
+    cblDisown(allocator);
     cblTestIsTrue(cblAllocatorHasAllocationRecord(NULL, allocator));
     cblDisown(num);
     cblTestIsFalse(cblAllocatorHasAllocationRecord(NULL, allocator));
 }
 
 CBL_TEST_RUN(
-        defaultAllocatorIsMalloc
+        defaultAllocatorIsMalloc,
+        allocatorsAreRetainedByTheirAllocations
 );

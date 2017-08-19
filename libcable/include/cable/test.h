@@ -22,7 +22,6 @@ void cblTest_##name (CblObject *cblTestEnv)                  \
 int main() {                                                 \
     const CblTest tests[] = {__VA_ARGS__, NULL};             \
     int result = cblTestRunAll(tests);                       \
-    cblAllocatorPrintLiveAllocationRecords(NULL, stderr);    \
     return result;                                           \
 }                                                            \
 

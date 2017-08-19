@@ -45,7 +45,7 @@ static void finalize(CblString *data) {
     cblDisown(data->buffer);
 }
 
-static CblString *stringCallback(CblString *string) {
+static CblString *stringCallback(CblAllocator *alloc, CblString *string) {
     cblOwn(string);
     return string;
 }
@@ -76,13 +76,8 @@ static CblClass STRING_CLASS = {
 
 CblClass * const CBL_STRING_CLASS = &STRING_CLASS;
 
-CblString *cblStringNewWithBytes(CblAllocator *alloc, const uint8_t *bytes, size_t length) {
-    return cblMutableStringNewWithBytes(alloc, bytes, length);
-}
-
-CblString *cblStringNewNoCopy(CblAllocator *alloc, const uint8_t *bytes, size_t length) {
-    // TODO: String internment?
-    return cblMutableStringNewWithBytes(alloc, bytes, length);
+CblString *cblStringNewWithBytes(CblAllocator *alloc, const uint8_t *bytes, size_t length, CblStringEncoding encoding) {
+    return cblMutableStringNewWithBytes(alloc, bytes, length, encoding);
 }
 
 CblString *cblStringNewFromCString(CblAllocator *alloc, const char *string) {
@@ -106,10 +101,10 @@ CblString *cblStringNewCopy(CblAllocator *alloc, CblString *string) {
 }
 
 CblMutableString *cblMutableStringNew(CblAllocator *alloc) {
-    return cblMutableStringNewWithBytes(alloc, NULL, 0);
+    return cblMutableStringNewWithBytes(alloc, NULL, 0, CBL_STRING_ENCODING_UTF8);
 }
 
-CblMutableString *cblMutableStringNewWithBytes(CblAllocator *alloc, const uint8_t *bytes, size_t length) {
+CblMutableString *cblMutableStringNewWithBytes(CblAllocator *alloc, const uint8_t *bytes, size_t length, CblStringEncoding encoding) {
     CblMutableData *buffer = cblMutableDataNewWithBytes(alloc, bytes, length);
     cblReturnUnless(buffer, NULL);
     CblMutableString *string = cblAllocatorAllocate(alloc, sizeof(CblMutableString));
@@ -125,7 +120,7 @@ CblMutableString *cblMutableStringNewWithBytes(CblAllocator *alloc, const uint8_
 }
 
 CblMutableString *cblMutableStringNewFromCString(CblAllocator *alloc, const char *string) {
-    return cblMutableStringNewWithBytes(alloc, (const uint8_t *)string, strlen(string));
+    return cblMutableStringNewWithBytes(alloc, (const uint8_t *)string, strlen(string), CBL_STRING_ENCODING_UTF8);
 }
 
 CblMutableString *cblMutableStringNewFromCFormat(CblAllocator *alloc, const char *format, ...) {
@@ -143,7 +138,7 @@ CblMutableString *cblMutableStringNewFromCFormatList(CblAllocator *alloc, const 
     char *bytes = cblAllocatorAllocate(alloc, size + 1);
     cblReturnUnless(bytes, NULL);
     snprintf(bytes, size + 1, format, args);
-    CblMutableString *string = cblMutableStringNewWithBytes(alloc, (uint8_t *)bytes, size);
+    CblMutableString *string = cblMutableStringNewWithBytes(alloc, (uint8_t *)bytes, size, CBL_STRING_ENCODING_UTF8);
     cblAllocatorDeallocate(alloc, bytes);
     cblReturnUnless(string, NULL);
     return string;
@@ -152,7 +147,16 @@ CblMutableString *cblMutableStringNewFromCFormatList(CblAllocator *alloc, const 
 CblMutableString *cblMutableStringNewCopy(CblAllocator *alloc, CblString *string) {
     cblReturnUnless(string, NULL);
     CblData *data = string->buffer;
-    return cblMutableStringNewWithBytes(alloc, cblDataGetBytePointer(data), cblDataGetLength(data));
+    return cblMutableStringNewWithBytes(alloc, cblDataGetBytePointer(data), cblDataGetLength(data), CBL_STRING_ENCODING_UTF8);
+}
+
+CblData *cblStringGetData(CblAllocator *alloc, CblString *string, CblStringEncoding encoding) {
+    return cblStringGetMutableData(alloc, string, encoding);
+}
+
+CblMutableData *cblStringGetMutableData(CblAllocator *alloc, CblString *string, CblStringEncoding encoding) {
+    cblReturnUnless(string, NULL);
+    return cblMutableDataNewCopy(alloc, string->buffer);
 }
 
 CblCmp cblStringCompare(CblString *lhs, CblString *rhs) {
@@ -160,9 +164,23 @@ CblCmp cblStringCompare(CblString *lhs, CblString *rhs) {
     return cblDataCompare(lhs->buffer, rhs->buffer);
 }
 
+char *cblStringGetCString(CblAllocator *alloc, CblString *string) {
+    cblReturnUnless(string, NULL);
+    CblData *data = string->buffer;
+    size_t length = cblDataGetLength(data);
+    uint8_t *bytes = cblAllocatorAllocate(alloc, length);
+    cblReturnUnless(bytes, NULL);
+    return memcpy(bytes, cblDataGetBytePointer(data), length);
+}
+
 size_t cblStringGetLength(CblString *string) {
     cblReturnUnless(string, 0);
     return string->length;
+}
+
+size_t cblStringGetSize(CblString *string) {
+    cblReturnUnless(string, 0);
+    return cblDataGetLength(string->buffer);
 }
 
 char32_t cblStringGet(CblString *string, size_t index) {
@@ -186,10 +204,18 @@ void cblStringLogTransfer(CblString *string) {
     cblDisown(string);
 }
 
+void cblStringEmpty(CblMutableString *string) {
+    cblBailUnless(string);
+    cblDataSetLength(string->buffer, 0);
+    string->length = 0;
+    string->hash = 0;
+}
+
 void cblStringAppend(CblMutableString *string, CblString *append) {
     cblBailUnless(string && append);
     cblDataAppendData(string->buffer, append->buffer);
     string->length += append->length;
+    string->hash = 0;
 }
 
 void cblStringAppendTransfer(CblMutableString *string, CblString *append) {
@@ -201,6 +227,7 @@ void cblStringAppendBytes(CblMutableString *string, const uint8_t *bytes, size_t
     cblBailUnless(string && bytes);
     cblDataAppendBytes(string->buffer, bytes, length);
     string->length += length;
+    string->hash = 0;
 }
 
 void cblStringAppendCString(CblMutableString *string, const char *cstring) {
@@ -208,6 +235,7 @@ void cblStringAppendCString(CblMutableString *string, const char *cstring) {
     size_t length = strlen(cstring);
     cblDataAppendBytes(string->buffer, (const uint8_t *)cstring, length);
     string->length += utf8Strnlen((const uint8_t *)cstring, length);
+    string->hash = 0;
 }
 
 void cblStringAppendCFormat(CblMutableString *string, const char *format, ...) {

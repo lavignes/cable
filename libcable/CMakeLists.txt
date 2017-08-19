@@ -17,6 +17,7 @@ set(HEADERS
         include/cable/core/set.h
         include/cable/core/map.h
         include/cable/core/scalar.h
+        include/cable/core/stream.h
 
         include/cable/math.h
         include/cable/math/4f.h
@@ -40,6 +41,7 @@ set(SOURCES
         src/core/set.c
         src/core/map.c
         src/core/scalar.c
+        src/core/stream.c
         )
 
 add_library(libcable ${HEADERS} ${SOURCES})

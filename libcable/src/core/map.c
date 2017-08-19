@@ -57,6 +57,7 @@ static void finalize(CblMutableMap *map) {
 }
 
 typedef struct StringForeachUserData {
+    CblAllocator *alloc;
     CblMutableString *string;
     const CblMapStringCallback keyCallback;
     const CblMapStringCallback valueCallback;
@@ -64,9 +65,10 @@ typedef struct StringForeachUserData {
 } StringForeachUserData;
 
 static bool stringForeach(CblMap *map, const void *key, const void *value, StringForeachUserData *userData) {
-    cblStringAppendTransfer(userData->string, userData->keyCallback(key));
+    CblAllocator *alloc = userData->alloc;
+    cblStringAppendTransfer(userData->string, userData->keyCallback(alloc, key));
     cblStringAppendCString(userData->string, ": ");
-    cblStringAppendTransfer(userData->string, userData->valueCallback(value));
+    cblStringAppendTransfer(userData->string, userData->valueCallback(alloc, value));
     if (userData->index < cblSetGetLength(map->buffer) - 1) {
         cblStringAppendCString(userData->string, ", ");
     }
@@ -74,14 +76,14 @@ static bool stringForeach(CblMap *map, const void *key, const void *value, Strin
     return false;
 }
 
-static CblString *stringCallback(CblMutableMap *map) {
+static CblString *stringCallback(CblAllocator *alloc, CblMutableMap *map) {
     cblReturnUnless(map, NULL);
     const CblMapKeyContext *keyContext = &map->keyContext;
     const CblMapValueContext *valueContext = &map->valueContext;
     cblReturnUnless(keyContext->stringCallback && valueContext->stringCallback, NULL);
-    CblMutableString *string = cblMutableStringNewFromCString(NULL, "{");
-    StringForeachUserData userData = {string, keyContext->stringCallback, valueContext->stringCallback, 0};
-    cblMapForeach(map, (void *)stringForeach, &userData);
+    CblMutableString *string = cblMutableStringNewFromCString(alloc, "{");
+    StringForeachUserData userData = {alloc, string, keyContext->stringCallback, valueContext->stringCallback, 0};
+    cblMapForeach(map, (CblMapForeachFunction)stringForeach, &userData);
     cblStringAppendCString(string, "}");
     return string;
 }

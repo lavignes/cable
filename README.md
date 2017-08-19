@@ -15,10 +15,12 @@ Error handling.
 * **<cable/core/allocator.h>**
 Create and work with custom memory allocators.
 Provides a wrapper for malloc/free that plays nice with reference counting.
-**Includes run-time memory leak detector!**
 
 * **<cable/core/data.h>**
 Perform operations on blocks of raw data.
+
+* **<cable/core/stream.h>**
+IO/Stream operations.
 
 * **<cable/core/array.h>**
 Manage homogeneous collections.
@@ -33,7 +35,7 @@ Associative arrays.
 Unicode strings.
 
 * **<cable/core/scalar.h>**
-Box scalar primitives.
+Boxed scalar primitives.
 
 * **<cable/test.h>**
 A bare-bones unit-testing library.

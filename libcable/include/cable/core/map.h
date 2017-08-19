@@ -11,7 +11,7 @@ typedef const void *(*CblMapOwnCallback)(CblMap *map, const void *element);
 typedef void (*CblMapDisownCallback)(CblMap *map, const void *element);
 typedef CblCmp (*CblMapCompareCallback)(const void *lhs, const void *rhs);
 typedef size_t (*CblMapHashCallback)(const void *element);
-typedef CblString *(*CblMapStringCallback)(const void *element);
+typedef CblString *(*CblMapStringCallback)(CblAllocator *alloc, const void *element);
 typedef bool (*CblMapForeachFunction)(CblMap *map, const void *key, const void *value, void *userData);
 
 typedef struct CblMapKeyContext {

@@ -20,41 +20,41 @@ struct CblScalar {
         double doubleValue;
         ssize_t sizeValue;
         size_t uSizeValue;
-    } as;
+    };
 };
 
 static size_t hashCallback(CblScalar *scalar) {
     switch (scalar->species) {
         case BOOL:
-            return scalar->as.boolValue? 1 : 0;
+            return scalar->boolValue? 1 : 0;
 
         case DOUBLE:
-            return (size_t)scalar->as.doubleValue;
+            return (size_t)scalar->doubleValue;
 
         case SIZE:
-            return (size_t)scalar->as.sizeValue;
+            return (size_t)scalar->sizeValue;
 
         case USIZE:
-            return scalar->as.uSizeValue;
+            return scalar->uSizeValue;
     }
     return false;
 }
 
-static CblString *stringCallback(CblScalar *scalar) {
+static CblString *stringCallback(CblAllocator *alloc, CblScalar *scalar) {
     switch (scalar->species) {
         case BOOL:
-            return CBL_STR(scalar->as.boolValue? "1" : "0");
+            return cblStringNewFromCString(alloc, scalar->boolValue? "1" : "0");
 
         case DOUBLE:
-            return cblStringNewFromCFormat(NULL, "%g", scalar->as.doubleValue);
+            return cblStringNewFromCFormat(alloc, "%g", scalar->doubleValue);
 
         case SIZE:
-            return cblStringNewFromCFormat(NULL, "%zd", scalar->as.doubleValue);
+            return cblStringNewFromCFormat(alloc, "%zd", scalar->doubleValue);
 
         case USIZE:
-            return cblStringNewFromCFormat(NULL, "%zu", scalar->as.doubleValue);
+            return cblStringNewFromCFormat(alloc, "%zu", scalar->doubleValue);
     }
-    return CBL_STR("(null)");
+    return cblStringNewFromCString(alloc, "(null)");
 }
 
 static CblClass SCALAR_CLASS = {
@@ -75,19 +75,19 @@ static CblScalar *createRawNumber(CblAllocator *alloc, Species species, ...) {
     switch (species) {
         case BOOL:
             // bool is promoted to int to preserve alignment on systems that use small booleans
-            scalar->as.boolValue = (bool)va_arg(args, int);
+            scalar->boolValue = (bool)va_arg(args, int);
             break;
 
         case DOUBLE:
-            scalar->as.doubleValue = va_arg(args, double);
+            scalar->doubleValue = va_arg(args, double);
             break;
 
         case SIZE:
-            scalar->as.sizeValue = va_arg(args, ssize_t);
+            scalar->sizeValue = va_arg(args, ssize_t);
             break;
 
         case USIZE:
-            scalar->as.uSizeValue = va_arg(args, size_t);
+            scalar->uSizeValue = va_arg(args, size_t);
             break;
     }
     va_end(args);
@@ -104,19 +104,19 @@ bool cblScalarBoolValue(CblScalar *scalar) {
     cblReturnUnless(scalar, false);
     switch (scalar->species) {
         case BOOL:
-            return scalar->as.boolValue;
+            return scalar->boolValue;
 
         case DOUBLE:
-            if (!isfinite(scalar->as.doubleValue)) {
+            if (!isfinite(scalar->doubleValue)) {
                 return false;
             }
-            return scalar->as.doubleValue != 0.0;
+            return scalar->doubleValue != 0.0;
 
         case SIZE:
-            return scalar->as.sizeValue != 0;
+            return scalar->sizeValue != 0;
 
         case USIZE:
-            return scalar->as.uSizeValue != 0;
+            return scalar->uSizeValue != 0;
     }
     return false;
 }
@@ -129,16 +129,16 @@ float cblScalarFloatValue(CblScalar *scalar) {
     cblReturnUnless(scalar, 0.0f);
     switch (scalar->species) {
         case BOOL:
-            return scalar->as.boolValue? 1.0f : 0.0f;
+            return scalar->boolValue? 1.0f : 0.0f;
 
         case DOUBLE:
-            return (float)scalar->as.doubleValue;
+            return (float)scalar->doubleValue;
 
         case SIZE:
-            return scalar->as.sizeValue;
+            return scalar->sizeValue;
 
         case USIZE:
-            return scalar->as.uSizeValue;
+            return scalar->uSizeValue;
     }
     return 0.0f;
 }
@@ -151,16 +151,16 @@ double cblScalarDoubleValue(CblScalar *scalar) {
     cblReturnUnless(scalar, 0.0);
     switch (scalar->species) {
         case BOOL:
-            return scalar->as.boolValue? 1.0 : 0.0;
+            return scalar->boolValue? 1.0 : 0.0;
 
         case DOUBLE:
-            return scalar->as.doubleValue;
+            return scalar->doubleValue;
 
         case SIZE:
-            return scalar->as.sizeValue;
+            return scalar->sizeValue;
 
         case USIZE:
-            return scalar->as.uSizeValue;
+            return scalar->uSizeValue;
     }
     return 0.0;
 }
@@ -253,16 +253,16 @@ ssize_t cblScalarSizeValue(CblScalar *scalar) {
     cblReturnUnless(scalar, 0);
     switch (scalar->species) {
         case BOOL:
-            return scalar->as.boolValue? 1 : 0;
+            return scalar->boolValue? 1 : 0;
 
         case DOUBLE:
-            return (ssize_t)scalar->as.doubleValue;
+            return (ssize_t)scalar->doubleValue;
 
         case SIZE:
-            return scalar->as.sizeValue;
+            return scalar->sizeValue;
 
         case USIZE:
-            return (ssize_t)scalar->as.uSizeValue;
+            return (ssize_t)scalar->uSizeValue;
     }
     return 0;
 }
@@ -275,16 +275,16 @@ size_t cblScalarUSizeValue(CblScalar *scalar) {
     cblReturnUnless(scalar, 0);
     switch (scalar->species) {
         case BOOL:
-            return scalar->as.boolValue? 1 : 0;
+            return scalar->boolValue? 1 : 0;
 
         case DOUBLE:
-            return (size_t)scalar->as.doubleValue;
+            return (size_t)scalar->doubleValue;
 
         case SIZE:
-            return (size_t)scalar->as.sizeValue;
+            return (size_t)scalar->sizeValue;
 
         case USIZE:
-            return scalar->as.uSizeValue;
+            return scalar->uSizeValue;
     }
     return 0;
 }
@@ -310,7 +310,7 @@ CblCmp cblScalarCompare(CblScalar *lhs, CblScalar *rhs) {
     switch (lhs->species) {
         case BOOL:
             cblReturnUnless(rhs->species == BOOL, false);
-            if (lhs->as.boolValue != rhs->as.boolValue) {
+            if (lhs->boolValue != rhs->boolValue) {
                 return CBL_CMP_GREATER;
             }
             break;
@@ -318,7 +318,7 @@ CblCmp cblScalarCompare(CblScalar *lhs, CblScalar *rhs) {
         case DOUBLE:
             cblReturnUnless(rhs->species == DOUBLE, false);
             {
-                double res = lhs->as.doubleValue - rhs->as.doubleValue;
+                double res = lhs->doubleValue - rhs->doubleValue;
                 if (res > 0) {
                     return CBL_CMP_GREATER;
                 }
@@ -329,18 +329,18 @@ CblCmp cblScalarCompare(CblScalar *lhs, CblScalar *rhs) {
             break;
 
         case SIZE:
-            if (lhs->as.sizeValue > rhs->as.sizeValue) {
+            if (lhs->sizeValue > rhs->sizeValue) {
                 return CBL_CMP_GREATER;
-            } else if (lhs->as.sizeValue < rhs->as.sizeValue) {
+            } else if (lhs->sizeValue < rhs->sizeValue) {
                 return CBL_CMP_LESSER;
             }
             break;
 
         case USIZE:
-            if (lhs->as.uSizeValue > rhs->as.uSizeValue) {
+            if (lhs->uSizeValue > rhs->uSizeValue) {
                 return CBL_CMP_GREATER;
             }
-            if (lhs->as.uSizeValue < rhs->as.uSizeValue) {
+            if (lhs->uSizeValue < rhs->uSizeValue) {
                 return CBL_CMP_LESSER;
             }
             break;

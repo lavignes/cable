@@ -20,7 +20,7 @@ void cblDisown(CblObject *obj) {
 }
 
 size_t cblGetRefCount(CblObject *obj) {
-    cblReturnUnless(obj, CBL_NOT_FOUND);
+    cblReturnUnless(obj, 0);
     return atomic_load(&GET(obj)->rc);
 }
 
@@ -64,26 +64,15 @@ CblAllocator *cblGetAllocator(CblObject *obj) {
     return GET(obj)->alloc;
 }
 
-CblString *cblGetString(CblObject *obj) {
-    cblReturnUnless(obj, CBL_STR("(null)"));
-    if (GET(obj)->isa->stringCallback) {
-        return GET(obj)->isa->stringCallback(obj);
+CblString *cblGetString(CblAllocator *alloc, CblObject *obj) {
+    cblReturnUnless(obj, cblStringNewFromCString(alloc, "(null)"));
+    if (!alloc) {
+        alloc = GET(obj)->alloc;
     }
-    CblMutableString *string = cblMutableStringNewFromCString(NULL, "(");
-    cblStringAppendCString(string, GET(obj)->isa->name);
-    cblStringAppendCString(string, ")");
-    return string;
-}
-
-CblString *cblTransferString(CblObject *obj) {
-    cblReturnUnless(obj, CBL_STR("(null)"));
-    CblString *string = cblGetString(obj);
-    cblDisown(obj);
-    return string;
-}
-
-CblString *cblGetClassName(CblClass *cls) {
-    return CBL_STR(cls->name);
+    if (GET(obj)->isa->stringCallback) {
+        return GET(obj)->isa->stringCallback(alloc, obj);
+    }
+    return cblStringNewFromCFormat(alloc, "(%s)", GET(obj)->isa->name);
 }
 
 void cblInitialize(CblObject *obj, CblAllocator *alloc, CblClass *cls) {

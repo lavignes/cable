@@ -11,11 +11,12 @@ typedef const void CblObject;
 typedef const struct CblClass CblClass;
 typedef struct CblAllocator CblAllocator;
 typedef const struct CblString CblString;
+typedef const struct CblData CblData;
 
 typedef void (*CblObjectFinalizeCallback)(CblObject *obj);
 typedef size_t (*CblObjectHashCallback)(CblObject *obj);
 typedef CblCmp (*CblObjectCompareCallback)(CblObject *lhs, CblObject *rhs);
-typedef CblString *(*CblObjectStringCallback)(CblObject *obj);
+typedef CblString *(*CblObjectStringCallback)(CblAllocator *alloc, CblObject *obj);
 
 struct CblClass {
     const char *name;
@@ -37,8 +38,6 @@ void cblInitialize(CblObject *obj, CblAllocator *alloc, CblClass *cls);
 
 CblClass *cblGetClass(CblObject *obj);
 
-CblString *cblGetClassName(CblClass *cls);
-
 void cblOwn(CblObject *obj);
 
 void cblDisown(CblObject *obj);
@@ -57,9 +56,7 @@ void cblDeallocateInOwner(CblObject *owner, const void *element);
 
 CblAllocator *cblGetAllocator(CblObject *obj);
 
-CblString *cblGetString(CblObject *obj);
-
-CblString *cblTransferString(CblObject *obj);
+CblString *cblGetString(CblAllocator *alloc, CblObject *obj);
 
 CBL_EXTERN_END
 
