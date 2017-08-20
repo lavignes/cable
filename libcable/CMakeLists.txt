@@ -26,6 +26,7 @@ set(HEADERS
         include/cable/math/simd/2d.h
         include/cable/math/scalar/2d.h
         include/cable/math/mat4f.h
+        include/cable/math/mat2d.h
         )
 
 set(SOURCES

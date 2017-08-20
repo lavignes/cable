@@ -52,3 +52,6 @@ Scalar and vector math library.
 * **<cable/math/mat4f.h>**
 4d single-precision floating point matrix math.
 
+* **<cable/math/mat2d.h>**
+2d double-precision floating point matrix math.
+
