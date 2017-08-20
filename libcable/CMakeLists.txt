@@ -49,7 +49,7 @@ set_target_properties(libcable PROPERTIES OUTPUT_NAME cable)
 set_target_properties(libcable PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS libcable
-        LIBRARY DESTINATION lib/cable
-        PUBLIC_HEADER DESTINATION include/cable)
+        LIBRARY DESTINATION lib/cable)
+install(DIRECTORY include/cable/ DESTINATION include/cable)
 
 add_subdirectory(tst)
