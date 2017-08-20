@@ -2,55 +2,11 @@
 
 #include <cable/core/allocator.h>
 
-typedef struct Record Record;
-struct Record {
-    Record *next;
-    Record *prev;
-    CblAllocator *alloc;
-    size_t size;
-};
-
 struct CblAllocator {
     CblConcreteObject isa;
     CblAllocatorContext context;
     atomic_uint allocationBalance;
-    Record *head;
-    Record *tail;
 };
-
-static void initAllocationRecord(Record *record, CblAllocator *alloc, size_t size) {
-    record->next = NULL;
-    record->prev = NULL;
-    record->alloc = alloc;
-    record->size = size;
-    if (!alloc->tail) {
-        alloc->head = record;
-        alloc->tail = record;
-    } else {
-        alloc->tail->next = record;
-        record->prev = alloc->tail;
-        alloc->tail = record;
-    }
-}
-
-static void cleanupAllocationRecord(Record *record) {
-    CblAllocator *alloc = record->alloc;
-    if (alloc->head == record && alloc->tail == record) {
-        alloc->head = NULL;
-        alloc->tail = NULL;
-    } else if (alloc->head == record) {
-        alloc->head = record->next;
-        alloc->head->prev = NULL;
-    } else if (alloc->tail == record) {
-        alloc->tail = record->prev;
-        alloc->tail->next = NULL;
-    } else {
-        Record *after = record->next;
-        Record *before = record->prev;
-        after->prev = before;
-        before->next = after;
-    }
-}
 
 static void *mallocAllocate(CblAllocator *alloc, size_t size, void *userData) {
     void *ptr = calloc(1, size);
@@ -101,8 +57,6 @@ static CblAllocator MALLOC_ALLOCATOR = {
                 .deallocate = mallocFree,
         },
         .allocationBalance = ATOMIC_VAR_INIT(0),
-        .head = NULL,
-        .tail = NULL
 };
 
 CblAllocator * const CBL_ALLOCATOR_MALLOC = &MALLOC_ALLOCATOR;
@@ -129,25 +83,19 @@ void *cblAllocatorAllocate(CblAllocator *alloc, size_t size) {
         alloc = CBL_ALLOCATOR_DEFAULT;
     }
     atomic_fetch_add(&alloc->allocationBalance, 1);
-    Record *record = alloc->context.allocate(alloc, sizeof(Record) + size, alloc->context.userData);
-    initAllocationRecord(record, alloc, size);
-    return record + 1;
+    return alloc->context.allocate(alloc, size, alloc->context.userData);
 }
 
 void *cblAllocatorReallocate(CblAllocator *alloc, void *ptr, size_t size) {
+    if (!alloc) {
+        alloc = CBL_ALLOCATOR_DEFAULT;
+    }
     if (size == 0) {
         cblAllocatorDeallocate(alloc, ptr);
         return NULL;
     }
     cblReturnUnless(ptr, cblAllocatorAllocate(alloc, size));
-    if (alloc == NULL) {
-        alloc = CBL_ALLOCATOR_DEFAULT;
-    }
-    Record *record = ((Record *)ptr) - 1;
-    cleanupAllocationRecord(record);
-    record = alloc->context.reallocate(alloc, record, sizeof(Record) + size, alloc->context.userData);
-    initAllocationRecord(record, alloc, size);
-    return record + 1;
+    return alloc->context.reallocate(alloc, ptr, size, alloc->context.userData);
 }
 
 void cblAllocatorDeallocate(CblAllocator *alloc, void *ptr) {
@@ -156,9 +104,7 @@ void cblAllocatorDeallocate(CblAllocator *alloc, void *ptr) {
         alloc = CBL_ALLOCATOR_DEFAULT;
     }
     atomic_fetch_add(&alloc->allocationBalance, -1);
-    Record *record = ((Record *)ptr) - 1;
-    cleanupAllocationRecord(record);
-    alloc->context.deallocate(alloc, record, alloc->context.userData);
+    alloc->context.deallocate(alloc, ptr, alloc->context.userData);
 }
 
 size_t cblAllocatorGetAllocationBalance(CblAllocator *alloc) {
@@ -166,13 +112,4 @@ size_t cblAllocatorGetAllocationBalance(CblAllocator *alloc) {
         alloc = CBL_ALLOCATOR_DEFAULT;
     }
     return atomic_load(&alloc->allocationBalance);
-}
-
-bool cblAllocatorHasAllocationRecord(CblAllocator *alloc, const void *ptr) {
-    cblReturnUnless(ptr, false);
-    Record *record = ((Record *)ptr) - 1;
-    if (!alloc) {
-        alloc = CBL_ALLOCATOR_DEFAULT;
-    }
-    return record->alloc == alloc;
 }

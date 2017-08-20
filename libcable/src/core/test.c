@@ -63,7 +63,7 @@ void cblTestTrue(CblTest *it, const char *cdescription, bool condition) {
         it->failCount++;
     }
     CblAllocator *alloc = cblGetAllocator(it);
-    CblString *description = cblStringNewFromCFormat(alloc, condition ? "ok - it %s" : "no - it %s", cdescription);
+    CblString *description = cblStringNewFromCFormat(alloc, condition ? "✔ it %s" : "✘ it %s", cdescription);
     cblBailUnless(description);
     cblArrayAppend(it->conditions, description);
     cblDisown(description);
@@ -169,7 +169,11 @@ static bool runTest(CblArray *array, CblTest *test, size_t index, RunTestData *d
         runner->teardown(test);
     }
     if (stream) {
-        cblReturnIf(cblArrayForeach(test->conditions, (CblArrayForeachFunction)outputDescription, data), true);
+        cblReturnIf(cblArrayForeach(test->conditions, (CblArrayForeachFunction) outputDescription, data), true);
+        if (index < cblArrayGetLength(array) - 1) {
+            cblStreamWriteCString(alloc, stream, "\n", error);
+            cblReturnIf(error && *error, true);
+        }
     }
     if (test->failCount) {
         runner->failCount++;

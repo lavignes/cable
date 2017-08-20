@@ -187,6 +187,7 @@ CblOutputStream *cblOutputStreamNewFromData(CblAllocator *alloc, CblMutableData 
     CblOutputStream *stream = cblAllocatorAllocate(alloc, sizeof(CblStream));
     cblReturnUnless(stream, NULL);
     cblInitialize(stream, alloc, CBL_STREAM_CLASS);
+    cblOwn(data);
     stream->species = ODATA;
     stream->odata = data;
     if (!append) {

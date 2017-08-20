@@ -1,4 +1,5 @@
 #include <cable/core/test.h>
+#include <cable/core/string.h>
 
 static void alwaysFails(CblTest *it) {
     cblTestTrue(it, "always fails", false);
@@ -18,7 +19,7 @@ static void emptyRunner(CblTest *it) {
 static void oneFailingTest(CblTest *it) {
     CblTestRunner *runner = cblTestRunnerNew(NULL);
 
-    cblTestRunnerAdd(runner, "a failing test", alwaysFails);
+    cblTestRunnerAdd(runner, "A failing test", alwaysFails);
 
     cblTestTrue(it, "should return 1", cblTestRunnerRun(runner) == 1);
     cblDisown(runner);
@@ -27,8 +28,8 @@ static void oneFailingTest(CblTest *it) {
 static void twoFailingTests(CblTest *it) {
     CblTestRunner *runner = cblTestRunnerNew(NULL);
 
-    cblTestRunnerAdd(runner, "a failing test", alwaysFails);
-    cblTestRunnerAdd(runner, "another failing test", alwaysFails);
+    cblTestRunnerAdd(runner, "A failing test", alwaysFails);
+    cblTestRunnerAdd(runner, "Another failing test", alwaysFails);
 
     cblTestTrue(it, "should return 2", cblTestRunnerRun(runner) == 2);
     cblDisown(runner);
@@ -37,7 +38,7 @@ static void twoFailingTests(CblTest *it) {
 static void onePassingTest(CblTest *it) {
     CblTestRunner *runner = cblTestRunnerNew(NULL);
 
-    cblTestRunnerAdd(runner, "a passing test", alwaysPasses);
+    cblTestRunnerAdd(runner, "A passing test", alwaysPasses);
 
     cblTestTrue(it, "should return 0", cblTestRunnerRun(runner) == 0);
     cblDisown(runner);
@@ -46,11 +47,42 @@ static void onePassingTest(CblTest *it) {
 static void twoPassingTests(CblTest *it) {
     CblTestRunner *runner = cblTestRunnerNew(NULL);
 
-    cblTestRunnerAdd(runner, "a passing test", alwaysPasses);
-    cblTestRunnerAdd(runner, "another passing test", alwaysPasses);
+    cblTestRunnerAdd(runner, "A passing test", alwaysPasses);
+    cblTestRunnerAdd(runner, "Another passing test", alwaysPasses);
 
     cblTestTrue(it, "should return 0", cblTestRunnerRun(runner) == 0);
     cblDisown(runner);
+}
+
+static void failingSetupAndTeardown(CblTest *it) {
+    CblTestRunner *runner = cblTestRunnerNew(NULL);
+
+    cblTestRunnerSetup(runner, alwaysFails);
+    cblTestRunnerAdd(runner, "A passing test", alwaysPasses);
+    cblTestRunnerTeardown(runner, alwaysFails);
+
+    CblMutableData *data = cblMutableDataNew(NULL, 0);
+    CblOutputStream *stream = cblOutputStreamNewFromData(NULL, data, false);
+
+    cblTestTrue(it, "should return 1", cblTestRunnerRunLog(runner, stream, NULL) == 1);
+    cblDisown(runner);
+    cblDisown(stream);
+
+    CblString *log = cblStringNewWithBytes(NULL,
+                                           cblDataGetBytePointer(data),
+                                           cblDataGetLength(data),
+                                           CBL_STRING_ENCODING_UTF8);
+    cblDisown(data);
+    CblString *expectedLog = cblStringNewFromCString(NULL,
+         "A passing test\n"
+         "  ✘ it always fails\n"
+         "  ✔ it always passes\n"
+         "  ✘ it always fails\n"
+    );
+
+    cblTestEquals(it, "will have failing setup and teardown in its logs", expectedLog, log);
+    cblDisown(log);
+    cblDisown(expectedLog);
 }
 
 int main() {
@@ -61,6 +93,7 @@ int main() {
     cblTestRunnerAdd(runner, "A test runner with two failing tests", twoFailingTests);
     cblTestRunnerAdd(runner, "A test runner with one passing test", onePassingTest);
     cblTestRunnerAdd(runner, "A test runner with two passing tests", twoPassingTests);
+    cblTestRunnerAdd(runner, "A test runner with a failing setup and teardown", failingSetupAndTeardown);
 
     CblOutputStream *stream = cblOutputStreamNewFromCStream(NULL, stderr);
     int status = cblTestRunnerRunLog(runner, stream, NULL);

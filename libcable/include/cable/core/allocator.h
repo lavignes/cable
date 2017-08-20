@@ -69,14 +69,6 @@ void cblAllocatorDeallocate(CblAllocator *alloc, void *ptr);
 
 size_t cblAllocatorGetAllocationBalance(CblAllocator *alloc);
 
-/**
- * Returns true if a pointer if currently allocated by this allocator.
- * @param alloc An allocator.
- * @param ptr A pointer to test.
- * @return true if the pointer is allocated.
- */
-bool cblAllocatorHasAllocationRecord(CblAllocator *alloc, const void *ptr);
-
 CBL_EXTERN_END
 
 #endif // CBL_CORE_ALLOCATOR_H_
