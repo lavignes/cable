@@ -18,7 +18,6 @@ set(HEADERS
         include/cable/core/scalar.h
         include/cable/core/stream.h
         include/cable/core/test.h
-
         include/cable/math.h
         include/cable/math/4f.h
         include/cable/math/simd/4f.h
@@ -43,10 +42,14 @@ set(SOURCES
         src/core/test.c
         )
 
-add_library(libcable ${HEADERS} ${SOURCES})
-set_target_properties(libcable PROPERTIES OUTPUT_NAME cable)
+add_library(libcable SHARED ${HEADERS} ${SOURCES})
 target_include_directories(libcable PUBLIC include)
 
-target_link_libraries(libcable backtrace)
+set_target_properties(libcable PROPERTIES OUTPUT_NAME cable)
+set_target_properties(libcable PROPERTIES PUBLIC_HEADER "${HEADERS}")
+
+install(TARGETS libcable
+        LIBRARY DESTINATION lib/cable
+        PUBLIC_HEADER DESTINATION include/cable)
 
 add_subdirectory(tst)
