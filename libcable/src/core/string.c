@@ -193,17 +193,6 @@ bool cblStringForeach(CblString *string, CblStringForeachFunction foreachFunctio
     return false;
 }
 
-void cblStringLog(CblString *string) {
-    cblBailUnless(string);
-    printf("%s\n", cblDataGetBytePointer(string->buffer));
-}
-
-void cblStringLogTransfer(CblString *string) {
-    cblBailUnless(string);
-    cblStringLog(string);
-    cblDisown(string);
-}
-
 void cblStringEmpty(CblMutableString *string) {
     cblBailUnless(string);
     cblDataSetLength(string->buffer, 0);
@@ -216,11 +205,6 @@ void cblStringAppend(CblMutableString *string, CblString *append) {
     cblDataAppendData(string->buffer, append->buffer);
     string->length += append->length;
     string->hash = 0;
-}
-
-void cblStringAppendTransfer(CblMutableString *string, CblString *append) {
-    cblStringAppend(string, append);
-    cblDisown(append);
 }
 
 void cblStringAppendBytes(CblMutableString *string, const uint8_t *bytes, size_t length) {
@@ -247,5 +231,6 @@ void cblStringAppendCFormat(CblMutableString *string, const char *format, ...) {
 
 void cblStringAppendCFormatList(CblMutableString *string, const char *format, va_list args) {
     cblBailUnless(string && format);
-    cblStringAppendTransfer(string, cblStringNewFromCFormatList(cblGetAllocator(string), format, args));
+    autodisown CblString *temp = cblStringNewFromCFormatList(cblGetAllocator(string), format, args);
+    cblStringAppend(string, temp);
 }

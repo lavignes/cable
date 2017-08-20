@@ -12,11 +12,7 @@ CblError *cblErrorNew(CblAllocator *alloc, CblString *domain, int code);
 
 CblError *cblErrorNewFromErrno(CblAllocator *alloc, int code);
 
-CblError *cblErrorNewTransfer(CblAllocator *alloc, CblString *domain, int code);
-
 CblError *cblErrorNewWithReason(CblAllocator *alloc, CblString *domain, int code, CblString *reason);
-
-CblError *cblErrorNewWithReasonTransfer(CblAllocator *alloc, CblString *domain, int code, CblString *reason);
 
 CblCmp cblErrorCompare(CblError *lhs, CblError *rhs);
 

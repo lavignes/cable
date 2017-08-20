@@ -62,7 +62,8 @@ static CblString *stringCallback(CblAllocator *alloc, CblMutableSet *set) {
         if (!element || element == DUMMY) {
             continue;
         }
-        cblStringAppendTransfer(string, context->stringCallback(alloc, element));
+        autodisown CblString *temp = context->stringCallback(alloc, element);
+        cblStringAppend(string, temp);
         if (j < set->length - 1) {
             cblStringAppendCString(string, ", ");
         }
@@ -213,16 +214,6 @@ const void *cblSetGet(CblSet *set, const void *element) {
     return bucket->element;
 }
 
-const void *cblSetGetTransfer(CblSet *set, const void *element) {
-    cblReturnUnless(set, NULL);
-    const void *gotElement = cblSetGet(set, element);
-    const CblSetContext *context = &set->context;
-    if (context->disownCallback && element) {
-        context->disownCallback(set, element);
-    }
-    return gotElement;
-}
-
 bool cblSetForeach(CblSet *set, CblSetForeachFunction foreachFunction, void *userData) {
     cblReturnUnless(set && foreachFunction, false);
     size_t size = getDataVirtualLength(set->buffer);
@@ -258,15 +249,6 @@ void cblSetSet(CblMutableSet *set, const void *element) {
     bucket->hashCode = hashCode;
     if (set->length >= set->loadFactor) {
         expandSet(set);
-    }
-}
-
-void cblSetSetTransfer(CblMutableSet *set, const void *element) {
-    cblBailUnless(set);
-    cblSetSet(set, element);
-    const CblSetContext *context = &set->context;
-    if (context->disownCallback && element) {
-        context->disownCallback(set, element);
     }
 }
 

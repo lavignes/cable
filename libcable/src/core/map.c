@@ -66,9 +66,11 @@ typedef struct StringForeachUserData {
 
 static bool stringForeach(CblMap *map, const void *key, const void *value, StringForeachUserData *userData) {
     CblAllocator *alloc = userData->alloc;
-    cblStringAppendTransfer(userData->string, userData->keyCallback(alloc, key));
+    autodisown CblString *keyString = userData->keyCallback(alloc, key);
+    cblStringAppend(userData->string, keyString);
     cblStringAppendCString(userData->string, ": ");
-    cblStringAppendTransfer(userData->string, userData->valueCallback(alloc, value));
+    autodisown CblString *valueString = userData->valueCallback(alloc, value);
+    cblStringAppend(userData->string, valueString);
     if (userData->index < cblSetGetLength(map->buffer) - 1) {
         cblStringAppendCString(userData->string, ", ");
     }
@@ -222,16 +224,6 @@ const void *cblMapGet(CblMap *map, const void *key) {
     return pair->value;
 }
 
-const void *cblMapGetTransfer(CblMap *map, const void *key) {
-    cblReturnUnless(map, NULL);
-    const void *value = cblMapGet(map, key);
-    const CblMapKeyContext *keyContext = &map->keyContext;
-    if (keyContext->disownCallback) {
-        keyContext->disownCallback(map, key);
-    }
-    return value;
-}
-
 typedef struct ForeachUserData {
     CblMapForeachFunction foreachFunction;
     void *userData;
@@ -258,19 +250,6 @@ void cblMapSet(CblMutableMap *map, const void *key, const void *value) {
     pair->key = keyContext->ownCallback ? keyContext->ownCallback(map, key) : key;
     pair->value = valueContext->ownCallback ? valueContext->ownCallback(map, value) : value;
     cblSetSet(map->buffer, pair);
-}
-
-void cblMapSetTransfer(CblMutableMap *map, const void *key, const void *value) {
-    cblBailUnless(map);
-    cblMapSet(map, key, value);
-    const CblMapKeyContext *keyContext = &map->keyContext;
-    const CblMapValueContext *valueContext = &map->valueContext;
-    if (keyContext->disownCallback) {
-        keyContext->disownCallback(map, key);
-    }
-    if (valueContext->disownCallback) {
-        valueContext->disownCallback(map, value);
-    }
 }
 
 void cblMapRemove(CblMutableMap *map, const void *key) {

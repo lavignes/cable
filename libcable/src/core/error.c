@@ -45,11 +45,9 @@ CblError *cblErrorNew(CblAllocator *alloc, CblString *domain, int code) {
 CblError *cblErrorNewFromErrno(CblAllocator *alloc, int code) {
     CblString *reason = cblStringNewFromCString(alloc, strerror(code));
     cblReturnUnless(reason, NULL);
-    return cblErrorNewWithReasonTransfer(alloc, NULL, code, reason);
-}
-
-CblError *cblErrorNewTransfer(CblAllocator *alloc, CblString *domain, int code) {
-    return cblErrorNewWithReasonTransfer(alloc, domain, code, NULL);
+    CblError *error = cblErrorNewWithReason(alloc, NULL, code, reason);
+    cblDisown(reason);
+    return error;
 }
 
 CblError *cblErrorNewWithReason(CblAllocator *alloc, CblString *domain, int code, CblString *reason) {
@@ -59,13 +57,6 @@ CblError *cblErrorNewWithReason(CblAllocator *alloc, CblString *domain, int code
     error->domain = domain ?: cblStringNewFromCString(alloc, "Error");
     error->code = code;
     error->reason = reason;
-    return error;
-}
-
-CblError *cblErrorNewWithReasonTransfer(CblAllocator *alloc, CblString *domain, int code, CblString *reason) {
-    CblError *error = cblErrorNewWithReason(alloc, domain, code, reason);
-    cblDisown(domain);
-    cblDisown(reason);
     return error;
 }
 

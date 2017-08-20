@@ -20,13 +20,9 @@ typedef struct CblStream CblInputStream;
 
 CblInputStream *cblInputStreamNew(CblAllocator *alloc, CblString *location, CblError **error);
 
-CblInputStream *cblInputStreamNewTransfer(CblAllocator *alloc, CblString *location, CblError **error);
-
 CblInputStream *cblInputStreamNewFromCStream(CblAllocator *alloc, FILE *cstream);
 
 CblInputStream *cblInputStreamNewFromData(CblAllocator *alloc, CblData *data);
-
-CblInputStream *cblInputStreamNewFromDataTransfer(CblAllocator *alloc, CblData *data);
 
 size_t cblStreamReadBytes(CblAllocator *alloc, CblInputStream *stream, uint8_t *buffer, size_t length, CblError **error);
 
@@ -34,13 +30,9 @@ typedef struct CblStream CblOutputStream;
 
 CblOutputStream *cblOutputStreamNew(CblAllocator *alloc, CblString *location, bool append, CblError **error);
 
-CblOutputStream *cblOutputStreamNewTransfer(CblAllocator *alloc, CblString *location, bool append, CblError **error);
-
 CblOutputStream *cblOutputStreamNewFromCStream(CblAllocator *alloc, FILE *cstream);
 
 CblOutputStream *cblOutputStreamNewFromData(CblAllocator *alloc, CblMutableData *data, bool append);
-
-CblOutputStream *cblOutputStreamNewFromDataTransfer(CblAllocator *alloc, CblMutableData *data, bool append);
 
 size_t cblStreamWriteBytes(CblAllocator *alloc, CblOutputStream *stream, const uint8_t *bytes, size_t length, CblError **error);
 

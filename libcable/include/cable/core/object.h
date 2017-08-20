@@ -42,6 +42,8 @@ void cblOwn(CblObject *obj);
 
 void cblDisown(CblObject *obj);
 
+#define autodisown __attribute__((cleanup(cblDisown)))
+
 size_t cblGetRefCount(CblObject *obj);
 
 size_t cblGetHash(CblObject *obj);

@@ -105,12 +105,6 @@ CblInputStream *cblInputStreamNew(CblAllocator *alloc, CblString *location, CblE
     return stream;
 }
 
-CblInputStream *cblInputStreamNewTransfer(CblAllocator *alloc, CblString *location, CblError **error) {
-    CblInputStream *stream = cblInputStreamNew(alloc, location, error);
-    cblDisown(location);
-    return stream;
-}
-
 CblInputStream *cblInputStreamNewFromCStream(CblAllocator *alloc, FILE *cstream) {
     cblReturnUnless(cstream, NULL);
     CblInputStream *stream = cblAllocatorAllocate(alloc, sizeof(CblStream));
@@ -130,12 +124,6 @@ CblInputStream *cblInputStreamNewFromData(CblAllocator *alloc, CblData *data) {
     stream->species = IDATA;
     stream->proxy = data;
     stream->index = 0;
-    return stream;
-}
-
-CblInputStream *cblInputStreamNewFromDataTransfer(CblAllocator *alloc, CblData *data) {
-    CblInputStream *stream = cblInputStreamNewFromData(alloc, data);
-    cblDisown(data);
     return stream;
 }
 
@@ -187,12 +175,6 @@ CblOutputStream *cblOutputStreamNew(CblAllocator *alloc, CblString *location, bo
     return stream;
 }
 
-CblOutputStream *cblOutputStreamNewTransfer(CblAllocator *alloc, CblString *location, bool append, CblError **error) {
-    CblOutputStream *stream = cblOutputStreamNew(alloc, location, append, error);
-    cblDisown(location);
-    return stream;
-}
-
 CblOutputStream *cblOutputStreamNewFromCStream(CblAllocator *alloc, FILE *cstream) {
     cblReturnUnless(cstream, NULL);
     CblOutputStream *stream = cblAllocatorAllocate(alloc, sizeof(CblStream));
@@ -213,12 +195,6 @@ CblOutputStream *cblOutputStreamNewFromData(CblAllocator *alloc, CblMutableData 
     if (!append) {
         cblDataSetLength(data, 0);
     }
-    return stream;
-}
-
-CblOutputStream *cblOutputStreamNewFromDataTransfer(CblAllocator *alloc, CblMutableData *data, bool append) {
-    CblOutputStream *stream = cblOutputStreamNewFromData(alloc, data, append);
-    cblDisown(data);
     return stream;
 }
 

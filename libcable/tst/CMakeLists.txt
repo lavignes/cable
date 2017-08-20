@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 11)
 set(TESTS)
 
 list(APPEND TESTS
-        core/allocator.c
+        core/stream.c
         )
 
 foreach(file ${TESTS})

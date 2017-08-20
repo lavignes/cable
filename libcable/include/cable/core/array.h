@@ -33,11 +33,7 @@ CblArray *cblArrayNewCopy(CblAllocator *alloc, CblArray *array);
 
 CblArray *cblArrayNewArgs(CblAllocator *alloc, const CblArrayContext *context, ...);
 
-CblArray *cblArrayNewArgsTransfer(CblAllocator *alloc, const CblArrayContext *context, ...);
-
 CblArray *cblArrayNewArgsList(CblAllocator *alloc, const CblArrayContext *context, va_list args);
-
-CblArray *cblArrayNewArgsListTransfer(CblAllocator *alloc, const CblArrayContext *context, va_list args);
 
 CblMutableArray *cblMutableArrayNew(CblAllocator *alloc, const CblArrayContext *context);
 
@@ -50,11 +46,7 @@ CblMutableArray *cblMutableArrayNewCopy(CblAllocator *alloc, CblArray *array);
 
 CblMutableArray *cblMutableArrayNewArgs(CblAllocator *alloc, const CblArrayContext *context, ...);
 
-CblMutableArray *cblMutableArrayNewArgsTransfer(CblAllocator *alloc, const CblArrayContext *context, ...);
-
 CblMutableArray *cblMutableArrayNewArgsList(CblAllocator *alloc, const CblArrayContext *context, va_list args);
-
-CblMutableArray *cblMutableArrayNewArgsListTransfer(CblAllocator *alloc, const CblArrayContext *context, va_list args);
 
 CblCmp cblArrayCompare(CblArray *lhs, CblArray *rhs);
 
@@ -66,19 +58,13 @@ bool cblArrayForeach(CblArray *array, CblArrayForeachFunction foreachFunction, v
 
 const void *cblArraySet(CblMutableArray *array, size_t index, const void *value);
 
-const void *cblArraySetTransfer(CblMutableArray *array, size_t index, const void *value);
-
 size_t cblArrayInsert(CblMutableArray *array, size_t index, const void *value);
-
-size_t cblArrayInsertTransfer(CblMutableArray *array, size_t index, const void *value);
 
 void cblArrayRemove(CblMutableArray *array, size_t index);
 
 void cblArrayEmpty(CblMutableArray *array);
 
 size_t cblArrayAppend(CblMutableArray *array, const void *value);
-
-size_t cblArrayAppendTransfer(CblMutableArray *array, const void *value);
 
 CBL_EXTERN_END
 

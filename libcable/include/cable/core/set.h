@@ -44,13 +44,9 @@ size_t cblSetGetLength(CblSet *set);
 
 const void *cblSetGet(CblSet *set, const void *element);
 
-const void *cblSetGetTransfer(CblSet *set, const void *element);
-
 bool cblSetForeach(CblSet *set, CblSetForeachFunction foreachFunction, void *userData);
 
 void cblSetSet(CblMutableSet *set, const void *element);
-
-void cblSetSetTransfer(CblMutableSet *set, const void *element);
 
 void cblSetRemove(CblMutableSet *set, const void *element);
 

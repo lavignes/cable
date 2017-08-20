@@ -31,17 +31,12 @@ struct CblArray {
 
 static CblMutableArray *createArgsArray(CblAllocator *alloc,
                                         const CblArrayContext *context,
-                                        bool transfer,
                                         va_list args) {
     CblMutableArray *array = cblMutableArrayNew(alloc, context);
     cblReturnUnless(array, NULL);
     CblObject *obj = va_arg(args, CblObject *);
     while (obj) {
-        if (transfer) {
-            cblArrayAppendTransfer(array, obj);
-        } else {
-            cblArrayAppend(array, obj);
-        }
+        cblArrayAppend(array, obj);
         obj = va_arg(args, CblObject *);
     }
     return array;
@@ -64,7 +59,8 @@ static CblString *stringCallback(CblAllocator *alloc, CblMutableArray *array) {
     size_t length = getDataVirtualLength(array->buffer);
     const void **buffer = (const void **)cblDataGetBytePointer(array->buffer);
     for (size_t i = 0; i < length; ++i) {
-        cblStringAppendTransfer(string, context->stringCallback(alloc, buffer[i]));
+        autodisown CblString *temp = context->stringCallback(alloc, buffer[i]);
+        cblStringAppend(string, temp);
         if (i < length - 1) {
             cblStringAppendCString(string, ", ");
         }
@@ -98,19 +94,8 @@ CblArray *cblArrayNewArgs(CblAllocator *alloc, const CblArrayContext *context, .
     va_end(args);
 }
 
-CblArray *cblArrayNewArgsTransfer(CblAllocator *alloc, const CblArrayContext *context, ...) {
-    va_list args;
-    va_start(args, context);
-    return cblMutableArrayNewArgsListTransfer(alloc, context, args);
-    va_end(args);
-}
-
 CblArray *cblArrayNewArgsList(CblAllocator *alloc, const CblArrayContext *context, va_list args) {
     return cblMutableArrayNewArgsList(alloc, context, args);
-}
-
-CblArray *cblArrayNewArgsListTransfer(CblAllocator *alloc, const CblArrayContext *context, va_list args) {
-    return cblMutableArrayNewArgsListTransfer(alloc, context, args);
 }
 
 CblMutableArray *cblMutableArrayNew(CblAllocator *alloc, const CblArrayContext *context) {
@@ -163,19 +148,9 @@ CblMutableArray *cblMutableArrayNewArgs(CblAllocator *alloc, const CblArrayConte
     va_end(args);
 }
 
-CblMutableArray *cblMutableArrayNewArgsTransfer(CblAllocator *alloc, const CblArrayContext *context, ...) {
-    va_list args;
-    va_start(args, context);
-    return cblMutableArrayNewArgsListTransfer(alloc, context, args);
-    va_end(args);
-}
 
 CblMutableArray *cblMutableArrayNewArgsList(CblAllocator *alloc, const CblArrayContext *context, va_list args) {
-    return createArgsArray(alloc, context, false, args);
-}
-
-CblMutableArray *cblMutableArrayNewArgsListTransfer(CblAllocator *alloc, const CblArrayContext *context, va_list args) {
-    return createArgsArray(alloc, context, true, args);
+    return createArgsArray(alloc, context, args);
 }
 
 CblCmp cblArrayCompare(CblArray *lhs, CblArray *rhs) {
@@ -243,16 +218,6 @@ const void *cblArraySet(CblMutableArray *array, size_t index, const void *value)
     return value;
 }
 
-const void *cblArraySetTransfer(CblMutableArray *array, size_t index, const void *value) {
-    cblReturnUnless(array, NULL);
-    const void *newValue = cblArraySet(array, index, value);
-    const CblArrayContext *context = &array->context;
-    if (context->disownCallback) {
-        context->disownCallback(array, value);
-    }
-    return newValue;
-}
-
 size_t cblArrayInsert(CblMutableArray *array, size_t index, const void *value) {
     cblReturnUnless(array && value, CBL_NOT_FOUND);
     const CblArrayContext *context = &array->context;
@@ -261,16 +226,6 @@ size_t cblArrayInsert(CblMutableArray *array, size_t index, const void *value) {
     }
     cblDataReplaceBytes(array->buffer, cblRangeNew(index * sizeof(void *), 0), (uint8_t *)&value, sizeof(void *));
     return index;
-}
-
-size_t cblArrayInsertTransfer(CblMutableArray *array, size_t index, const void *value) {
-    cblReturnUnless(array, CBL_NOT_FOUND);
-    const size_t newValue = cblArrayInsert(array, index, value);
-    const CblArrayContext *context = &array->context;
-    if (context->disownCallback) {
-        context->disownCallback(array, value);
-    }
-    return newValue;
 }
 
 void cblArrayRemove(CblMutableArray *array, size_t index) {
@@ -299,8 +254,4 @@ void cblArrayEmpty(CblMutableArray *array) {
 
 size_t cblArrayAppend(CblMutableArray *array, const void *value) {
     return cblArrayInsert(array, getDataVirtualLength(array->buffer), value);
-}
-
-size_t cblArrayAppendTransfer(CblMutableArray *array, const void *value) {
-    return cblArrayInsertTransfer(array, getDataVirtualLength(array->buffer), value);
 }

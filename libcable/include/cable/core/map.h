@@ -63,13 +63,9 @@ size_t cblMapGetLength(CblMap *map);
 
 const void *cblMapGet(CblMap *map, const void *key);
 
-const void *cblMapGetTransfer(CblMap *map, const void *key);
-
 bool cblMapForeach(CblMap *map, CblMapForeachFunction foreachFunction, void *userData);
 
 void cblMapSet(CblMutableMap *map, const void *key, const void *value);
-
-void cblMapSetTransfer(CblMutableMap *map, const void *key, const void *value);
 
 void cblMapRemove(CblMutableMap *map, const void *key);
 

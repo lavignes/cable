@@ -56,15 +56,9 @@ char32_t cblStringGet(CblString *string, size_t index);
 
 bool cblStringForeach(CblString *string, CblStringForeachFunction foreachFunction, void *userData);
 
-void cblStringLog(CblString *string);
-
-void cblStringLogTransfer(CblString *string);
-
 void cblStringEmpty(CblMutableString *string);
 
 void cblStringAppend(CblMutableString *string, CblString *append);
-
-void cblStringAppendTransfer(CblMutableString *string, CblString *append);
 
 void cblStringAppendBytes(CblMutableString *string, const uint8_t *bytes, size_t length);
 
