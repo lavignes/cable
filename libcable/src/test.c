@@ -1,4 +1,5 @@
 #include <cable/test.h>
+#include <cable/core.h>
 
 static CblClass TEST_CLASS = {
         .name = "CblTest",
@@ -32,4 +33,20 @@ void cblTestSetUserData(CblTest *test, void *userData) {
 
 void *cblTestGetUserData(CblTest *test) {
     return NULL;
+}
+
+CblTestRunner *cblTestRunnerNew(CblAllocator *alloc) {
+    return (CblTestRunner *)cblStringNewFromCString(alloc, "test string");
+}
+
+void cblTestRunnerSetup(CblTestMethod setup) {
+
+}
+
+void cblTestRunnerAdd(CblTestMethod method, const char *cdescription) {
+
+}
+
+int cblTestRunnerRun(CblTestRunner *runner) {
+    return 0;
 }

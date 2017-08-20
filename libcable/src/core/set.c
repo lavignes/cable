@@ -62,8 +62,9 @@ static CblString *stringCallback(CblAllocator *alloc, CblMutableSet *set) {
         if (!element || element == DUMMY) {
             continue;
         }
-        autodisown CblString *temp = context->stringCallback(alloc, element);
+        CblString *temp = context->stringCallback(alloc, element);
         cblStringAppend(string, temp);
+        cblDisown(temp);
         if (j < set->length - 1) {
             cblStringAppendCString(string, ", ");
         }

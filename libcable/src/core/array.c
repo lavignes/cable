@@ -59,8 +59,9 @@ static CblString *stringCallback(CblAllocator *alloc, CblMutableArray *array) {
     size_t length = getDataVirtualLength(array->buffer);
     const void **buffer = (const void **)cblDataGetBytePointer(array->buffer);
     for (size_t i = 0; i < length; ++i) {
-        autodisown CblString *temp = context->stringCallback(alloc, buffer[i]);
+        CblString *temp = context->stringCallback(alloc, buffer[i]);
         cblStringAppend(string, temp);
+        cblDisown(temp);
         if (i < length - 1) {
             cblStringAppendCString(string, ", ");
         }

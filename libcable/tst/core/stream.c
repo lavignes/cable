@@ -1,7 +1,9 @@
 #include <cable/test.h>
 
 int main() {
-    autodisown CblTestRunner *runner = cblTestRunnerNew(NULL);
+    CblTestRunner *runner = cblTestRunnerNew(NULL);
 
-    return cblTestRunnerRun(runner);
+    int status = cblTestRunnerRun(runner);
+    cblDisown(runner);
+    return status;
 }

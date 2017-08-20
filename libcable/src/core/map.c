@@ -66,11 +66,13 @@ typedef struct StringForeachUserData {
 
 static bool stringForeach(CblMap *map, const void *key, const void *value, StringForeachUserData *userData) {
     CblAllocator *alloc = userData->alloc;
-    autodisown CblString *keyString = userData->keyCallback(alloc, key);
+    CblString *keyString = userData->keyCallback(alloc, key);
     cblStringAppend(userData->string, keyString);
+    cblDisown(keyString);
     cblStringAppendCString(userData->string, ": ");
-    autodisown CblString *valueString = userData->valueCallback(alloc, value);
+    CblString *valueString = userData->valueCallback(alloc, value);
     cblStringAppend(userData->string, valueString);
+    cblDisown(valueString);
     if (userData->index < cblSetGetLength(map->buffer) - 1) {
         cblStringAppendCString(userData->string, ", ");
     }

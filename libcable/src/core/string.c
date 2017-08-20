@@ -231,6 +231,7 @@ void cblStringAppendCFormat(CblMutableString *string, const char *format, ...) {
 
 void cblStringAppendCFormatList(CblMutableString *string, const char *format, va_list args) {
     cblBailUnless(string && format);
-    autodisown CblString *temp = cblStringNewFromCFormatList(cblGetAllocator(string), format, args);
+    CblString *temp = cblStringNewFromCFormatList(cblGetAllocator(string), format, args);
     cblStringAppend(string, temp);
+    cblDisown(temp);
 }
