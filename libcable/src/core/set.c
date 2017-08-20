@@ -78,7 +78,7 @@ static CblClass SET_CLASS = {
         .name = "CblSet",
         .finalizeCallback = (CblObjectFinalizeCallback)finalize,
         .hashCallback = NULL,
-        .compareCallback = (CblObjectCompareCallback)cblSetCompare,
+        .compareCallback = NULL,
         .stringCallback = (CblObjectStringCallback)stringCallback,
 };
 
@@ -104,7 +104,7 @@ CBL_INLINE static Bucket *getBucketForElement(const CblSetContext *context,
                 if (element == bucket->element) {
                     return bucket;
                 }
-            } else if (context->compareCallback(element, bucket->element) == CBL_CMP_EQUAL) {
+            } else if (context->compareCallback(element, bucket->element) == 0) {
                 return bucket;
             }
         }
@@ -196,11 +196,6 @@ CblMutableSet *cblMutableSetNewCopy(CblAllocator *alloc, CblSet *set) {
         cblSetSet(newSet, element);
     }
     return newSet;
-}
-
-CblCmp cblSetCompare(CblSet *lhs, CblSet *rhs) {
-    // TODO: Unimplemented
-    return CBL_CMP_GREATER;
 }
 
 size_t cblSetGetLength(CblSet *set) {

@@ -28,11 +28,20 @@ static CblString *stringCallback(CblAllocator *alloc, CblError *error) {
     return string;
 }
 
+static int errorCompare(CblError *lhs, CblError *rhs) {
+    cblReturnUnless(lhs && rhs, -1);
+    int cmp = cblCompare(lhs->domain, rhs->domain);
+    if (cmp != 0) {
+        return cmp;
+    }
+    return lhs->code - rhs->code;
+}
+
 static CblClass ERROR_CLASS = {
         .name = "CblError",
         .finalizeCallback = (CblObjectFinalizeCallback)finalizeCallback,
         .hashCallback = NULL,
-        .compareCallback = (CblObjectCompareCallback)cblErrorCompare,
+        .compareCallback = (CblObjectCompareCallback)errorCompare,
         .stringCallback = (CblObjectStringCallback)stringCallback,
 };
 
@@ -58,18 +67,6 @@ CblError *cblErrorNewWithReason(CblAllocator *alloc, CblString *domain, int code
     error->code = code;
     error->reason = reason;
     return error;
-}
-
-CblCmp cblErrorCompare(CblError *lhs, CblError *rhs) {
-    cblReturnUnless(lhs && rhs, CBL_CMP_GREATER);
-    CblCmp domainCmp = cblStringCompare(lhs->domain, rhs->domain);
-    if (domainCmp != CBL_CMP_EQUAL) {
-        return CBL_CMP_GREATER;
-    }
-    if (lhs->code != rhs->code) {
-        return CBL_CMP_GREATER;
-    }
-    return CBL_CMP_EQUAL;
 }
 
 CblString *cblErrorGetDomain(CblError *error) {

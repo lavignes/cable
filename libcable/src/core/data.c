@@ -14,11 +14,16 @@ static void finalize(CblData *data) {
     cblAllocatorDeallocate(cblGetAllocator(data), data->buffer);
 }
 
+static int dataCompare(CblData *lhs, CblData *rhs) {
+    cblReturnUnless(lhs && rhs, -1);
+    return memcmp(lhs->buffer, rhs->buffer, cblUSizeMin(lhs->length, rhs->length));
+}
+
 static CblClass DATA_CLASS = {
         .name = "CblData",
         .finalizeCallback = (CblObjectFinalizeCallback)finalize,
         .hashCallback = NULL,
-        .compareCallback = (CblObjectCompareCallback)cblDataCompare,
+        .compareCallback = (CblObjectCompareCallback)dataCompare,
         .stringCallback = NULL,
 };
 
@@ -56,18 +61,6 @@ CblMutableData *cblMutableDataNewWithBytes(CblAllocator *alloc, const uint8_t *b
 
 CblMutableData *cblMutableDataNewCopy(CblAllocator *alloc, CblData *data) {
     return cblMutableDataNewWithBytes(alloc, data->buffer, data->length);
-}
-
-CblCmp cblDataCompare(CblData *lhs, CblData *rhs) {
-    cblReturnUnless(lhs && rhs, CBL_CMP_GREATER);
-    int res = memcmp(lhs->buffer, rhs->buffer, (lhs->length < rhs->length) ? lhs->length : rhs->length);
-    if (res < 0) {
-        return CBL_CMP_LESSER;
-    }
-    if (res > 0) {
-        return CBL_CMP_GREATER;
-    }
-    return CBL_CMP_EQUAL;
 }
 
 size_t cblDataGetSize(CblData *data) {

@@ -13,7 +13,7 @@ CblClass * const CBL_ARRAY_CLASS;
 
 typedef const void *(*CblArrayOwnCallback)(CblArray *array, const void *element);
 typedef void (*CblArrayDisownCallback)(CblArray *array, const void *element);
-typedef CblCmp (*CblArrayCompareCallback)(const void *lhs, const void *rhs);
+typedef int (*CblArrayCompareCallback)(const void *lhs, const void *rhs);
 typedef CblString *(*CblArrayStringCallback)(CblAllocator *alloc, const void *element);
 typedef bool (*CblArrayForeachFunction)(CblArray *array, const void *element, size_t index, void *userData);
 
@@ -47,8 +47,6 @@ CblMutableArray *cblMutableArrayNewCopy(CblAllocator *alloc, CblArray *array);
 CblMutableArray *cblMutableArrayNewArgs(CblAllocator *alloc, const CblArrayContext *context, ...);
 
 CblMutableArray *cblMutableArrayNewArgsList(CblAllocator *alloc, const CblArrayContext *context, va_list args);
-
-CblCmp cblArrayCompare(CblArray *lhs, CblArray *rhs);
 
 size_t cblArrayGetLength(CblArray *array);
 

@@ -14,8 +14,6 @@ CblError *cblErrorNewFromErrno(CblAllocator *alloc, int code);
 
 CblError *cblErrorNewWithReason(CblAllocator *alloc, CblString *domain, int code, CblString *reason);
 
-CblCmp cblErrorCompare(CblError *lhs, CblError *rhs);
-
 CblString *cblErrorGetDomain(CblError *error);
 
 int cblErrorGetCode(CblError *error);

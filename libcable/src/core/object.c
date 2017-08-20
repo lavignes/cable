@@ -1,7 +1,7 @@
 #include <cable/core/allocator.h>
 #include <cable/core/string.h>
 
-#define GET(obj) ((CblConcreteObject *)obj)
+#define GET(obj) ((CblConcreteObject *)(obj))
 
 void cblOwn(CblObject *obj) {
     cblBailUnless(obj);
@@ -32,14 +32,19 @@ size_t cblGetHash(CblObject *obj) {
     return GET(obj)->isa->hashCallback(obj);
 }
 
-CblCmp cblCompare(CblObject *lhs, CblObject *rhs) {
-    cblReturnUnless(lhs && rhs, CBL_CMP_GREATER);
-    cblReturnIf(lhs == rhs, CBL_CMP_EQUAL);
+bool cblEquals(CblObject *lhs, CblObject *rhs) {
+    return cblCompare(lhs, rhs) == 0;
+}
+
+int cblCompare(CblObject *lhs, CblObject *rhs) {
+    cblReturnUnless(lhs && rhs, -1);
+    cblReturnIf(lhs == rhs, 0);
     if (GET(lhs)->isa != GET(rhs)->isa) {
-        return CBL_CMP_GREATER;
+        return -1;
     }
-    cblReturnUnless(GET(lhs)->isa->compareCallback, CBL_CMP_GREATER);
-    return GET(lhs)->isa->compareCallback(lhs, rhs);
+    CblObjectCompareCallback compare = GET(lhs)->isa->compareCallback;
+    cblReturnUnless(compare, -1);
+    return compare(lhs, rhs);
 }
 
 CblObject *cblOwnInOwner(CblObject *owner, CblObject *obj) {
@@ -69,8 +74,9 @@ CblString *cblGetString(CblAllocator *alloc, CblObject *obj) {
     if (!alloc) {
         alloc = GET(obj)->alloc;
     }
-    if (GET(obj)->isa->stringCallback) {
-        return GET(obj)->isa->stringCallback(alloc, obj);
+    CblObjectStringCallback string = GET(obj)->isa->stringCallback;
+    if (string) {
+        return string(alloc, obj);
     }
     return cblStringNewFromCFormat(alloc, "(%s)", GET(obj)->isa->name);
 }

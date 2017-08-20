@@ -9,7 +9,7 @@ CblClass * const CBL_SET_CLASS;
 
 typedef const void *(*CblSetOwnCallback)(CblSet *set, const void *element);
 typedef void (*CblSetDisownCallback)(CblSet *set, const void *element);
-typedef CblCmp (*CblSetCompareCallback)(const void *lhs, const void *rhs);
+typedef int (*CblSetCompareCallback)(const void *lhs, const void *rhs);
 typedef size_t (*CblSetHashCallback)(const void *element);
 typedef CblString *(*CblSetStringCallback)(CblAllocator *alloc, const void *element);
 typedef bool (*CblSetForeachFunction)(CblSet *set, const void *element, void *userData);
@@ -37,8 +37,6 @@ CblMutableSet *cblMutableSetNewWithElements(CblAllocator *alloc,
                                             size_t length);
 
 CblMutableSet *cblMutableSetNewCopy(CblAllocator *alloc, CblSet *set);
-
-CblCmp cblSetCompare(CblSet *lhs, CblSet *rhs);
 
 size_t cblSetGetLength(CblSet *set);
 

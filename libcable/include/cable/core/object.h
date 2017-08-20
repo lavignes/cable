@@ -15,7 +15,7 @@ typedef const struct CblData CblData;
 
 typedef void (*CblObjectFinalizeCallback)(CblObject *obj);
 typedef size_t (*CblObjectHashCallback)(CblObject *obj);
-typedef CblCmp (*CblObjectCompareCallback)(CblObject *lhs, CblObject *rhs);
+typedef int (*CblObjectCompareCallback)(CblObject *lhs, CblObject *rhs);
 typedef CblString *(*CblObjectStringCallback)(CblAllocator *alloc, CblObject *obj);
 
 struct CblClass {
@@ -42,13 +42,13 @@ void cblOwn(CblObject *obj);
 
 void cblDisown(CblObject *obj);
 
-#define autodisown __attribute__((cleanup(cblDisown)))
-
 size_t cblGetRefCount(CblObject *obj);
 
 size_t cblGetHash(CblObject *obj);
 
-CblCmp cblCompare(CblObject *lhs, CblObject *rhs);
+bool cblEquals(CblObject *lhs, CblObject *rhs);
+
+int cblCompare(CblObject *lhs, CblObject *rhs);
 
 CblObject *cblOwnInOwner(CblObject *owner, CblObject *obj);
 

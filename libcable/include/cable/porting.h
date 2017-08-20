@@ -34,13 +34,6 @@ CBL_EXTERN_BEGIN
 
 #define CBL_NOT_FOUND SIZE_MAX
 
-typedef enum CblCmp CblCmp;
-enum CblCmp {
-    CBL_CMP_EQUAL = 0,
-    CBL_CMP_GREATER = 1,
-    CBL_CMP_LESSER = -1,
-};
-
 CBL_INLINE size_t cblUSizeMin(size_t lhs, size_t rhs) {
     return (lhs < rhs) ? lhs : rhs;
 }

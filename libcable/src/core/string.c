@@ -66,11 +66,16 @@ static size_t hashCallback(CblMutableString *string) {
     return string->hash;
 }
 
+static int stringCompare(CblString *lhs, CblString *rhs) {
+    cblReturnUnless(lhs && rhs, -1);
+    return cblCompare(lhs->buffer, rhs->buffer);
+}
+
 static CblClass STRING_CLASS = {
         .name = "CblString",
         .finalizeCallback = (CblObjectFinalizeCallback)finalize,
         .hashCallback = (CblObjectHashCallback)hashCallback,
-        .compareCallback = (CblObjectCompareCallback)cblStringCompare,
+        .compareCallback = (CblObjectCompareCallback)stringCompare,
         .stringCallback = (CblObjectStringCallback)stringCallback
 };
 
@@ -157,11 +162,6 @@ CblData *cblStringGetData(CblAllocator *alloc, CblString *string, CblStringEncod
 CblMutableData *cblStringGetMutableData(CblAllocator *alloc, CblString *string, CblStringEncoding encoding) {
     cblReturnUnless(string, NULL);
     return cblMutableDataNewCopy(alloc, string->buffer);
-}
-
-CblCmp cblStringCompare(CblString *lhs, CblString *rhs) {
-    cblReturnUnless(lhs && rhs, CBL_CMP_GREATER);
-    return cblDataCompare(lhs->buffer, rhs->buffer);
 }
 
 char *cblStringGetCString(CblAllocator *alloc, CblString *string) {

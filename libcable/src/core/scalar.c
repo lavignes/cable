@@ -57,11 +57,54 @@ static CblString *stringCallback(CblAllocator *alloc, CblScalar *scalar) {
     return cblStringNewFromCString(alloc, "(null)");
 }
 
+static int scalarCompare(CblScalar *lhs, CblScalar *rhs) {
+    cblReturnUnless(lhs && rhs, -1);
+    switch (lhs->species) {
+        case BOOL:
+        cblReturnUnless(rhs->species == BOOL, false);
+            if (lhs->boolValue != rhs->boolValue) {
+                return -1;
+            }
+            return 0;
+
+        case DOUBLE:
+        cblReturnUnless(rhs->species == DOUBLE, false);
+            {
+                double res = lhs->doubleValue - rhs->doubleValue;
+                if (res > 0) {
+                    return 1;
+                }
+                if (res < 0) {
+                    return -1;
+                }
+            }
+            break;
+
+        case SIZE:
+            if (lhs->sizeValue > rhs->sizeValue) {
+                return 1;
+            } else if (lhs->sizeValue < rhs->sizeValue) {
+                return -1;
+            }
+            break;
+
+        case USIZE:
+            if (lhs->uSizeValue > rhs->uSizeValue) {
+                return 1;
+            }
+            if (lhs->uSizeValue < rhs->uSizeValue) {
+                return -1;
+            }
+            break;
+    }
+    return 0;
+}
+
 static CblClass SCALAR_CLASS = {
         .name = "CblScalar",
         .finalizeCallback = NULL,
         .hashCallback = (CblObjectHashCallback)hashCallback,
-        .compareCallback = (CblObjectCompareCallback)cblScalarCompare,
+        .compareCallback = (CblObjectCompareCallback)scalarCompare,
         .stringCallback = (CblObjectStringCallback)stringCallback
 };
 
@@ -303,47 +346,4 @@ CblScalar *cblScalarNewUIntPointer(CblAllocator *alloc, uintptr_t value) {
 
 uintptr_t cblScalarUIntPointerValue(CblScalar *scalar) {
     return (uintptr_t)cblScalarUSizeValue(scalar);
-}
-
-CblCmp cblScalarCompare(CblScalar *lhs, CblScalar *rhs) {
-    cblReturnUnless(lhs && rhs, CBL_CMP_GREATER);
-    switch (lhs->species) {
-        case BOOL:
-            cblReturnUnless(rhs->species == BOOL, false);
-            if (lhs->boolValue != rhs->boolValue) {
-                return CBL_CMP_GREATER;
-            }
-            break;
-
-        case DOUBLE:
-            cblReturnUnless(rhs->species == DOUBLE, false);
-            {
-                double res = lhs->doubleValue - rhs->doubleValue;
-                if (res > 0) {
-                    return CBL_CMP_GREATER;
-                }
-                if (res < 0) {
-                    return CBL_CMP_LESSER;
-                }
-            }
-            break;
-
-        case SIZE:
-            if (lhs->sizeValue > rhs->sizeValue) {
-                return CBL_CMP_GREATER;
-            } else if (lhs->sizeValue < rhs->sizeValue) {
-                return CBL_CMP_LESSER;
-            }
-            break;
-
-        case USIZE:
-            if (lhs->uSizeValue > rhs->uSizeValue) {
-                return CBL_CMP_GREATER;
-            }
-            if (lhs->uSizeValue < rhs->uSizeValue) {
-                return CBL_CMP_LESSER;
-            }
-            break;
-    }
-    return CBL_CMP_EQUAL;
 }

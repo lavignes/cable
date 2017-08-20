@@ -9,7 +9,7 @@ CblClass * const CBL_MAP_CLASS;
 
 typedef const void *(*CblMapOwnCallback)(CblMap *map, const void *element);
 typedef void (*CblMapDisownCallback)(CblMap *map, const void *element);
-typedef CblCmp (*CblMapCompareCallback)(const void *lhs, const void *rhs);
+typedef int (*CblMapCompareCallback)(const void *lhs, const void *rhs);
 typedef size_t (*CblMapHashCallback)(const void *element);
 typedef CblString *(*CblMapStringCallback)(CblAllocator *alloc, const void *element);
 typedef bool (*CblMapForeachFunction)(CblMap *map, const void *key, const void *value, void *userData);
@@ -56,8 +56,6 @@ CblMutableMap *cblMutableMapNewWithElements(CblAllocator *alloc,
                                             size_t length);
 
 CblMutableMap *cblMutableMapNewCopy(CblAllocator *alloc, CblMap *map);
-
-CblCmp cblMapCompare(CblMap *lhs, CblMap *rhs);
 
 size_t cblMapGetLength(CblMap *map);
 

@@ -70,11 +70,39 @@ static CblString *stringCallback(CblAllocator *alloc, CblMutableArray *array) {
     return string;
 }
 
+static int arrayCompare(CblArray *lhs, CblArray *rhs) {
+    cblReturnUnless(lhs && rhs, -1);
+    size_t lhsLength = getDataVirtualLength(lhs->buffer);
+    size_t rhsLength = getDataVirtualLength(rhs->buffer);
+    if (lhsLength > rhsLength) {
+        return 1;
+    }
+    if (lhsLength < rhsLength){
+        return -1;
+    }
+    const void **lhsBuffer = (const void **)cblDataGetBytePointer(lhs->buffer);
+    const void **rhsBuffer = (const void **)cblDataGetBytePointer(rhs->buffer);
+    const CblArrayContext *context = &lhs->context;
+    for (size_t i = 0; i < lhsLength; ++i) {
+        if (!context->compareCallback) {
+            if (lhsBuffer[i] != rhsBuffer[i]) {
+                return -1;
+            }
+            continue;
+        }
+        int cmp = context->compareCallback(lhsBuffer[i], rhsBuffer[i]);
+        if (cmp != 0) {
+            return cmp;
+        }
+    }
+    return 0;
+}
+
 static CblClass ARRAY_CLASS = {
         .name = "CblArray",
         .finalizeCallback = (CblObjectFinalizeCallback)finalize,
         .hashCallback = NULL,
-        .compareCallback = (CblObjectCompareCallback)cblArrayCompare,
+        .compareCallback = (CblObjectCompareCallback)arrayCompare,
         .stringCallback = (CblObjectStringCallback)stringCallback
 };
 
@@ -152,34 +180,6 @@ CblMutableArray *cblMutableArrayNewArgs(CblAllocator *alloc, const CblArrayConte
 
 CblMutableArray *cblMutableArrayNewArgsList(CblAllocator *alloc, const CblArrayContext *context, va_list args) {
     return createArgsArray(alloc, context, args);
-}
-
-CblCmp cblArrayCompare(CblArray *lhs, CblArray *rhs) {
-    cblReturnUnless(lhs && rhs, CBL_CMP_GREATER);
-    size_t lhsLength = getDataVirtualLength(lhs->buffer);
-    size_t rhsLength = getDataVirtualLength(rhs->buffer);
-    if (lhsLength > rhsLength) {
-        return CBL_CMP_GREATER;
-    }
-    if (lhsLength < rhsLength){
-        return CBL_CMP_LESSER;
-    }
-    const void **lhsBuffer = (const void **)cblDataGetBytePointer(lhs->buffer);
-    const void **rhsBuffer = (const void **)cblDataGetBytePointer(rhs->buffer);
-    const CblArrayContext *context = &lhs->context;
-    for (size_t i = 0; i < lhsLength; ++i) {
-        if (!context->compareCallback) {
-            if (lhsBuffer[i] != rhsBuffer[i]) {
-                return CBL_CMP_GREATER;
-            }
-            continue;
-        }
-        CblCmp cmp = context->compareCallback(lhsBuffer[i], rhsBuffer[i]);
-        if (cmp != CBL_CMP_EQUAL) {
-            return cmp;
-        }
-    }
-    return CBL_CMP_EQUAL;
 }
 
 size_t cblArrayGetLength(CblArray *array) {

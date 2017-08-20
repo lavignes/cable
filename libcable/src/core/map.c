@@ -95,7 +95,7 @@ static CblString *stringCallback(CblAllocator *alloc, CblMutableMap *map) {
 static CblClass MAP_CLASS = {
         .name = "CblMap",
         .finalizeCallback = (CblObjectFinalizeCallback)finalize,
-        .compareCallback = (CblObjectCompareCallback)cblMapCompare,
+        .compareCallback = NULL,
         .hashCallback = NULL,
         .stringCallback = (CblObjectStringCallback)stringCallback,
 };
@@ -120,15 +120,15 @@ static void releasePair(CblSet *set, const Pair *pair) {
     cblAllocatorDeallocate(cblGetAllocator(pair->map), (void *)pair);
 }
 
-static CblCmp comparePair(const Pair *lhs, const Pair *rhs) {
+static int comparePair(const Pair *lhs, const Pair *rhs) {
     const CblMapKeyContext *keyContext = &lhs->map->keyContext;
     if (keyContext->compareCallback) {
         return keyContext->compareCallback(lhs->key, rhs->key);
     }
     if (lhs->key != rhs->key) {
-        return CBL_CMP_EQUAL;
+        return -1;
     }
-    return CBL_CMP_GREATER;
+    return 0;
 }
 
 static size_t hashPair(const Pair *pair) {
@@ -206,11 +206,6 @@ CblMutableMap *cblMutableMapNewCopy(CblAllocator *alloc, CblMap *map) {
     cblReturnUnless(newMap, NULL);
     cblSetForeach(map->buffer, (void *)mapCopyForeachFunction, newMap);
     return newMap;
-}
-
-CblCmp cblMapCompare(CblMap *lhs, CblMap *rhs) {
-    // TODO: Unimplemented
-    return CBL_CMP_GREATER;
 }
 
 size_t cblMapGetLength(CblMap *map) {

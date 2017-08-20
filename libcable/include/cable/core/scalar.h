@@ -74,6 +74,4 @@ CblScalar *cblScalarNewUIntPointer(CblAllocator *alloc, uintptr_t value);
 
 uintptr_t cblScalarUIntPointerValue(CblScalar *scalar);
 
-CblCmp cblScalarCompare(CblScalar *lhs, CblScalar *rhs);
-
 #endif // CBL_CORE_SCALAR_H_

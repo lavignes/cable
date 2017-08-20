@@ -19,8 +19,6 @@ CblMutableData *cblMutableDataNewWithBytes(CblAllocator *alloc, const uint8_t *b
 
 CblMutableData *cblMutableDataNewCopy(CblAllocator *alloc, CblData *data);
 
-CblCmp cblDataCompare(CblData *lhs, CblData *rhs);
-
 size_t cblDataGetSize(CblData *data);
 
 size_t cblDataGetLength(CblData *data);
