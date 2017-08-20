@@ -1,8 +1,6 @@
 #ifndef CBL_CORE_ALLOCATOR_H_
 #define CBL_CORE_ALLOCATOR_H_
 
-#include <stdio.h>
-
 #include <cable/core/object.h>
 
 CBL_EXTERN_BEGIN
@@ -78,10 +76,6 @@ size_t cblAllocatorGetAllocationBalance(CblAllocator *alloc);
  * @return true if the pointer is allocated.
  */
 bool cblAllocatorHasAllocationRecord(CblAllocator *alloc, const void *ptr);
-
-void cblAllocatorPrintAllocationRecord(const void *ptr, FILE *file);
-
-void cblAllocatorPrintLiveAllocationRecords(CblAllocator *alloc, FILE *file);
 
 CBL_EXTERN_END
 

@@ -14,5 +14,5 @@ foreach(file ${TESTS})
     # We can prefex or suffix test targets
     string(CONCAT test ${test} "_test")
     add_executable(${test} ${file})
-    target_link_libraries(${test} libcable backtrace)
+    target_link_libraries(${test} libcable)
 endforeach(file)

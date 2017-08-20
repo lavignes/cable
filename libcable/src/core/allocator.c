@@ -1,16 +1,6 @@
 #include <string.h>
 
-#include <backtrace.h>
-
 #include <cable/core/allocator.h>
-
-typedef struct CallFrame CallFrame;
-struct CallFrame {
-    CallFrame *next;
-    char *fileName;
-    char *function;
-    size_t lineNumber;
-};
 
 typedef struct Record Record;
 struct Record {
@@ -18,8 +8,6 @@ struct Record {
     Record *prev;
     CblAllocator *alloc;
     size_t size;
-    CallFrame *head;
-    CallFrame *tail;
 };
 
 struct CblAllocator {
@@ -30,50 +18,11 @@ struct CblAllocator {
     Record *tail;
 };
 
-static int traceAllocationRecord(Record *record,
-                                    uintptr_t pc,
-                                    const char *fileName,
-                                    int lineNumber,
-                                    const char *function)
-{
-    cblReturnUnless(fileName && lineNumber && function, 0);
-    size_t fileNameSize = strlen(fileName) + 1;
-    size_t functionSize = strlen(function) + 2 + 1;
-    CblAllocator *alloc = record->alloc;
-    CblAllocatorContext *context = &alloc->context;
-    CallFrame *frame = context->allocate(alloc, sizeof(CallFrame), context->userData);
-    frame->fileName = context->allocate(alloc, fileNameSize, context->userData);
-    frame->function = context->allocate(alloc, functionSize, context->userData);
-    frame->lineNumber = (size_t)lineNumber;
-    char *baseName = strrchr(fileName, '/') + 1;
-    if (baseName != NULL) {
-        fileNameSize =  baseName - fileName;
-        fileName = baseName;
-    }
-    memmove(frame->fileName, fileName, fileNameSize);
-    memmove(frame->function, function, functionSize);
-    if (!record->tail) {
-        record->head = frame;
-        record->tail = frame;
-    } else {
-        record->tail->next = frame;
-        record->tail = frame;
-    }
-    return 0;
-}
-
 static void initAllocationRecord(Record *record, CblAllocator *alloc, size_t size) {
-    static struct backtrace_state *bs = NULL;
-    if (!bs) {
-        bs = backtrace_create_state(NULL, 1, NULL, NULL);
-    }
     record->next = NULL;
     record->prev = NULL;
     record->alloc = alloc;
     record->size = size;
-    record->head = NULL;
-    record->tail = NULL;
-    backtrace_full(bs, 2, (void *)traceAllocationRecord, NULL, record);
     if (!alloc->tail) {
         alloc->head = record;
         alloc->tail = record;
@@ -86,17 +35,6 @@ static void initAllocationRecord(Record *record, CblAllocator *alloc, size_t siz
 
 static void cleanupAllocationRecord(Record *record) {
     CblAllocator *alloc = record->alloc;
-    CblAllocatorContext *context = &alloc->context;
-    CallFrame *frame = record->head;
-    while (frame) {
-        CallFrame *next = frame->next;
-        context->deallocate(alloc, frame->fileName, context->userData);
-        context->deallocate(alloc, frame->function, context->userData);
-        context->deallocate(alloc, frame, context->userData);
-        frame = next;
-    }
-    record->head = NULL;
-    record->tail = NULL;
     if (alloc->head == record && alloc->tail == record) {
         alloc->head = NULL;
         alloc->tail = NULL;
@@ -237,33 +175,4 @@ bool cblAllocatorHasAllocationRecord(CblAllocator *alloc, const void *ptr) {
         alloc = CBL_ALLOCATOR_DEFAULT;
     }
     return record->alloc == alloc;
-}
-
-void cblAllocatorPrintAllocationRecord(const void *ptr, FILE *file) {
-    cblBailUnless(ptr && file);
-    Record *record = ((Record *)ptr) - 1;
-    CblConcreteObject *candidateObject = (CblConcreteObject *)ptr;
-    if (candidateObject->alloc == record->alloc && candidateObject->isa) {
-        fprintf(file, "[%s (%zu bytes)]\n", candidateObject->isa->name, record->size);
-    } else {
-        fprintf(file, "[%zu bytes]\n", record->size);
-    }
-    CallFrame *frame = record->head;
-    while (frame) {
-        fprintf(file, "  %-38s %s:%zu\n", frame->function, frame->fileName, frame->lineNumber);
-        frame = frame->next;
-    }
-    fprintf(file, "\n");
-}
-
-void cblAllocatorPrintLiveAllocationRecords(CblAllocator *alloc, FILE *file) {
-    cblBailUnless(file);
-    if (!alloc) {
-        alloc = CBL_ALLOCATOR_DEFAULT;
-    }
-    Record *record = alloc->head;
-    while (record) {
-        cblAllocatorPrintAllocationRecord(record + 1, file);
-        record = record->next;
-    }
 }
