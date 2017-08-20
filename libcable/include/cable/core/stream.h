@@ -18,7 +18,7 @@ void cblStreamFlush(CblAllocator *alloc, CblStream *stream, CblError **error);
 
 typedef struct CblStream CblInputStream;
 
-CblInputStream *cblInputStreamNew(CblAllocator *alloc, CblString *location, CblError **error);
+CblInputStream *cblInputStreamNew(CblAllocator *alloc, const char *location, CblError **error);
 
 CblInputStream *cblInputStreamNewFromCStream(CblAllocator *alloc, FILE *cstream);
 
@@ -28,11 +28,17 @@ size_t cblStreamReadBytes(CblAllocator *alloc, CblInputStream *stream, uint8_t *
 
 typedef struct CblStream CblOutputStream;
 
-CblOutputStream *cblOutputStreamNew(CblAllocator *alloc, CblString *location, bool append, CblError **error);
+CblOutputStream *cblOutputStreamNew(CblAllocator *alloc, const char *location, bool append, CblError **error);
 
 CblOutputStream *cblOutputStreamNewFromCStream(CblAllocator *alloc, FILE *cstream);
 
 CblOutputStream *cblOutputStreamNewFromData(CblAllocator *alloc, CblMutableData *data, bool append);
+
+size_t cblStreamWriteCString(CblAllocator *alloc, CblOutputStream *stream, const char *cstring, CblError **error);
+
+size_t cblStreamWriteCFormat(CblAllocator *alloc, CblOutputStream *stream, const char *format, CblError **error, ...);
+
+size_t cblStreamWriteCFormatList(CblAllocator *alloc, CblOutputStream *stream, const char *format, CblError **error, va_list args);
 
 size_t cblStreamWriteBytes(CblAllocator *alloc, CblOutputStream *stream, const uint8_t *bytes, size_t length, CblError **error);
 

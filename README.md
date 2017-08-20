@@ -37,7 +37,7 @@ Unicode strings.
 * **<cable/core/scalar.h>**
 Boxed scalar primitives.
 
-* **<cable/test.h>**
+* **<cable/core/test.h>**
 A bare-bones unit-testing library.
 
 ## <cable/math.h>

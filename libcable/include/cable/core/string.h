@@ -6,6 +6,8 @@
 
 #include <cable/core/object.h>
 #include <cable/core/data.h>
+#include "error.h"
+#include "stream.h"
 
 typedef enum CblStringEncoding CblStringEncoding;
 enum CblStringEncoding {
@@ -43,6 +45,8 @@ CblMutableString *cblMutableStringNewCopy(CblAllocator *alloc, CblString *string
 CblData *cblStringGetData(CblAllocator *alloc, CblString *string, CblStringEncoding encoding);
 
 CblMutableData *cblStringGetMutableData(CblAllocator *alloc, CblString *string, CblStringEncoding encoding);
+
+size_t cblStringOutput(CblAllocator *alloc, CblString *string, CblOutputStream *stream, CblStringEncoding encoding, CblError **error);
 
 size_t cblStringGetLength(CblString *string);
 

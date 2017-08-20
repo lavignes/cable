@@ -9,5 +9,7 @@
 #include <cable/core/object.h>
 #include <cable/core/set.h>
 #include <cable/core/string.h>
+#include <cable/core/stream.h>
+#include <cable/core/test.h>
 
 #endif // CABLE_CORE_H_

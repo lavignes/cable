@@ -5,7 +5,6 @@ set(CMAKE_C_STANDARD 11)
 
 set(HEADERS
         include/cable/porting.h
-        include/cable/test.h
 
         include/cable/core.h
         include/cable/core/object.h
@@ -18,6 +17,7 @@ set(HEADERS
         include/cable/core/map.h
         include/cable/core/scalar.h
         include/cable/core/stream.h
+        include/cable/core/test.h
 
         include/cable/math.h
         include/cable/math/4f.h
@@ -30,8 +30,6 @@ set(HEADERS
         )
 
 set(SOURCES
-        src/test.c
-
         src/core/object.c
         src/core/error.c
         src/core/allocator.c
@@ -42,6 +40,7 @@ set(SOURCES
         src/core/map.c
         src/core/scalar.c
         src/core/stream.c
+        src/core/test.c
         )
 
 add_library(libcable ${HEADERS} ${SOURCES})

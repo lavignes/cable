@@ -1,7 +1,6 @@
 #include <string.h>
 
 #include <cable/core/string.h>
-#include <cable/core/data.h>
 #include <cable/core/allocator.h>
 
 static const int CONTINUATION_BYTES[256] = {
@@ -137,12 +136,15 @@ CblMutableString *cblMutableStringNewFromCFormat(CblAllocator *alloc, const char
 }
 
 CblMutableString *cblMutableStringNewFromCFormatList(CblAllocator *alloc, const char *format, va_list args) {
-    int count = vsnprintf(NULL, 0, format, args);
+    va_list argscopy;
+    va_copy(argscopy, args);
+    int count = vsnprintf(NULL, 0, format, argscopy);
+    va_end(argscopy);
     cblReturnUnless(count > 0, NULL);
     size_t size = (size_t)count;
     char *bytes = cblAllocatorAllocate(alloc, size + 1);
     cblReturnUnless(bytes, NULL);
-    snprintf(bytes, size + 1, format, args);
+    vsnprintf(bytes, size + 1, format, args);
     CblMutableString *string = cblMutableStringNewWithBytes(alloc, (uint8_t *)bytes, size, CBL_STRING_ENCODING_UTF8);
     cblAllocatorDeallocate(alloc, bytes);
     cblReturnUnless(string, NULL);
@@ -164,8 +166,15 @@ CblMutableData *cblStringGetMutableData(CblAllocator *alloc, CblString *string, 
     return cblMutableDataNewCopy(alloc, string->buffer);
 }
 
+size_t cblStringOutput(CblAllocator *alloc, CblString *string, CblOutputStream *stream, CblStringEncoding encoding, CblError **error) {
+    cblReturnUnless(string && stream, 0);
+    CblData *data = string->buffer;
+    size_t length = cblDataGetLength(data);
+    const uint8_t *bytes = cblDataGetBytePointer(data);
+    return cblStreamWriteBytes(alloc, stream, bytes, length, error);
+}
+
 char *cblStringGetCString(CblAllocator *alloc, CblString *string) {
-    cblReturnUnless(string, NULL);
     CblData *data = string->buffer;
     size_t length = cblDataGetLength(data);
     uint8_t *bytes = cblAllocatorAllocate(alloc, length);

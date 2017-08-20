@@ -28,7 +28,7 @@ struct CblStream {
     };
 };
 
-void finalizeCallback(CblStream *stream) {
+static void finalizeCallback(CblStream *stream) {
     switch (stream->species) {
         case IDATA:
         case ODATA:
@@ -49,13 +49,10 @@ static CblClass STREAM_CLASS = {
 
 CblClass * const CBL_STREAM_CLASS = &STREAM_CLASS;
 
-static CBL_INLINE FILE *openStream(CblAllocator *alloc, CblString *location, const char *mode, CblError **error) {
+static CBL_INLINE FILE *openStream(CblAllocator *alloc, const char *location, const char *mode, CblError **error) {
     cblReturnUnless(location, NULL);
-    CblData *locationData = cblStringGetData(alloc, location, CBL_STRING_ENCODING_UTF8);
-    cblReturnUnless(locationData, NULL);
-    FILE *cstream = fopen((const char *)cblDataGetBytePointer(locationData), "rb");
+    FILE *cstream = fopen(location, "rb");
     int err = errno;
-    cblDisown(locationData);
     if (!cstream) {
         if (error) {
             *error = cblErrorNewFromErrno(alloc, err);
@@ -95,7 +92,7 @@ void cblStreamFlush(CblAllocator *alloc, CblStream *stream, CblError **error) {
     }
 }
 
-CblInputStream *cblInputStreamNew(CblAllocator *alloc, CblString *location, CblError **error) {
+CblInputStream *cblInputStreamNew(CblAllocator *alloc, const char *location, CblError **error) {
     FILE *cstream = openStream(alloc, location, "rb", error);
     cblReturnUnless(cstream, NULL);
     CblInputStream *stream = cblInputStreamNewFromCStream(alloc, cstream);
@@ -165,7 +162,7 @@ size_t cblStreamReadBytes(CblAllocator *alloc, CblInputStream *stream, uint8_t *
     return 0;
 }
 
-CblOutputStream *cblOutputStreamNew(CblAllocator *alloc, CblString *location, bool append, CblError **error) {
+CblOutputStream *cblOutputStreamNew(CblAllocator *alloc, const char *location, bool append, CblError **error) {
     FILE *cstream = openStream(alloc, location, append ? "wba" : "wb", error);
     cblReturnUnless(cstream, NULL);
     CblOutputStream *stream = cblOutputStreamNewFromCStream(alloc, cstream);
@@ -196,6 +193,27 @@ CblOutputStream *cblOutputStreamNewFromData(CblAllocator *alloc, CblMutableData 
         cblDataSetLength(data, 0);
     }
     return stream;
+}
+
+size_t cblStreamWriteCString(CblAllocator *alloc, CblOutputStream *stream, const char *cstring, CblError **error) {
+    return cblStreamWriteBytes(alloc, stream, (const uint8_t *)cstring, strlen(cstring), error);
+}
+
+size_t cblStreamWriteCFormat(CblAllocator *alloc, CblOutputStream *stream, const char *format, CblError **error, ...) {
+    va_list args;
+    va_start(args, error);
+    size_t written = cblStreamWriteCFormatList(alloc, stream, format, error, args);
+    va_end(args);
+    return written;
+}
+
+size_t cblStreamWriteCFormatList(CblAllocator *alloc, CblOutputStream *stream, const char *format, CblError **error, va_list args) {
+    cblReturnUnless(stream && format, 0);
+    CblString *string = cblStringNewFromCFormatList(alloc, format, args);
+    cblReturnUnless(string, 0);
+    size_t written = cblStringOutput(alloc, string, stream, CBL_STRING_ENCODING_UTF8, error);
+    cblDisown(string);
+    return written;
 }
 
 size_t cblStreamWriteBytes(CblAllocator *alloc,
