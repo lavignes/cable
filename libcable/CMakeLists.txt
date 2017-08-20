@@ -46,7 +46,6 @@ add_library(libcable SHARED ${HEADERS} ${SOURCES})
 target_include_directories(libcable PUBLIC include)
 
 set_target_properties(libcable PROPERTIES OUTPUT_NAME cable)
-set_target_properties(libcable PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS libcable
         LIBRARY DESTINATION lib/cable)
