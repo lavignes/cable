@@ -47,15 +47,15 @@ static void finalize(CblMutableArray *array) {
     cblDisown(array->buffer);
 }
 
-CBL_INLINE static size_t getDataVirtualLength(CblData *data) {
-return cblDataGetLength(data) / sizeof(void *);
+static inline size_t getDataVirtualLength(CblData *data) {
+    return cblDataGetLength(data) / sizeof(void *);
 }
 
 static CblString *stringCallback(CblAllocator *alloc, CblMutableArray *array) {
     cblReturnUnless(array, NULL);
     const CblArrayContext *context = &array->context;
     cblReturnUnless(context->stringCallback, NULL);
-    CblMutableString *string = cblMutableStringNewFromCString(alloc, "[");
+    CblMutableString *string = cblMutableStringNewWithCString(alloc, "[");
     size_t length = getDataVirtualLength(array->buffer);
     const void **buffer = (const void **)cblDataGetBytePointer(array->buffer);
     for (size_t i = 0; i < length; ++i) {

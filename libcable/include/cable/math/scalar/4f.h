@@ -278,142 +278,142 @@ typedef struct Cbl4f {
     };
 } Cbl4f;
 
-CBL_INLINE Cbl4f cbl4fNew(float x, float y, float z, float w) {
+static inline Cbl4f cbl4fNew(float x, float y, float z, float w) {
     return (Cbl4f) { .x_ = x, .y_ = y, .z_ = z, .w_ = w };
 }
 
-CBL_INLINE Cbl4f cbl4fZero() {
+static inline Cbl4f cbl4fZero() {
     return cbl4fNew(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-CBL_INLINE bool cbl4fEqual(Cbl4f lhs, Cbl4f rhs) {
+static inline bool cbl4fEqual(Cbl4f lhs, Cbl4f rhs) {
     return lhs.x_ == rhs.x_ && lhs.y_ == rhs.y_ && lhs.z_ == rhs.z_ && lhs.w_ == rhs.w_;
 }
 
-CBL_INLINE bool cbl4fLessThan(Cbl4f lhs, Cbl4f rhs) {
+static inline bool cbl4fLessThan(Cbl4f lhs, Cbl4f rhs) {
     return lhs.x_ < rhs.x_ && lhs.y_ < rhs.y_ && lhs.z_ < rhs.z_ && lhs.w_ < rhs.w_;
 }
 
-CBL_INLINE bool cbl4fGreaterThan(Cbl4f lhs, Cbl4f rhs) {
+static inline bool cbl4fGreaterThan(Cbl4f lhs, Cbl4f rhs) {
     return lhs.x_ > rhs.x_ && lhs.y_ > rhs.y_ && lhs.z_ > rhs.z_ && lhs.w_ > rhs.w_;
 }
 
-CBL_INLINE Cbl4f cbl4fMap(Cbl4f v4f, float (*fn)(float)) {
+static inline Cbl4f cbl4fMap(Cbl4f v4f, float (*fn)(float)) {
     return cbl4fNew(fn(v4f.x_), fn(v4f.y_), fn(v4f.z_), fn(v4f.w_));
 }
 
-CBL_INLINE Cbl4f cbl4fLoad(float *arr) {
+static inline Cbl4f cbl4fLoad(float *arr) {
     return cbl4fNew(arr[0], arr[1], arr[2], arr[3]);
 }
 
-CBL_INLINE void cbl4fStore(Cbl4f v4f, float *arr) {
+static inline void cbl4fStore(Cbl4f v4f, float *arr) {
     memcpy(arr, &v4f, sizeof(Cbl4f));
 }
 
-CBL_INLINE float cbl4fGetX(Cbl4f v4f) {
+static inline float cbl4fGetX(Cbl4f v4f) {
     return v4f.x_;
 }
 
-CBL_INLINE float cbl4fGetY(Cbl4f v4f) {
+static inline float cbl4fGetY(Cbl4f v4f) {
     return v4f.y_;
 }
 
-CBL_INLINE float cbl4fGetZ(Cbl4f v4f) {
+static inline float cbl4fGetZ(Cbl4f v4f) {
     return v4f.z_;
 }
 
-CBL_INLINE float cbl4fGetW(Cbl4f v4f) {
+static inline float cbl4fGetW(Cbl4f v4f) {
     return v4f.w_;
 }
 
-CBL_INLINE Cbl4f cbl4fSwizzle(Cbl4f v4f, Cbl4fSwizzle swizzle) {
+static inline Cbl4f cbl4fSwizzle(Cbl4f v4f, Cbl4fSwizzle swizzle) {
     return cbl4fNew(v4f.arr_[(swizzle & 0xC0) >> 6],
                     v4f.arr_[(swizzle & 0x30) >> 4],
                     v4f.arr_[(swizzle & 0x0C) >> 2],
                     v4f.arr_[(swizzle & 0x03)]);
 }
 
-CBL_INLINE Cbl4f cbl4fSplat(float f) {
+static inline Cbl4f cbl4fSplat(float f) {
     return cbl4fNew(f, f, f, f);
 }
 
-CBL_INLINE Cbl4f cbl4fSplatX(Cbl4f v4f) {
+static inline Cbl4f cbl4fSplatX(Cbl4f v4f) {
     return cbl4fSplat(v4f.x_);
 }
 
-CBL_INLINE Cbl4f cbl4fSplatY(Cbl4f v4f) {
+static inline Cbl4f cbl4fSplatY(Cbl4f v4f) {
     return cbl4fSplat(v4f.y_);
 }
 
-CBL_INLINE Cbl4f cbl4fSplatZ(Cbl4f v4f) {
+static inline Cbl4f cbl4fSplatZ(Cbl4f v4f) {
     return cbl4fSplat(v4f.z_);
 }
 
-CBL_INLINE Cbl4f cbl4fSplatW(Cbl4f v4f) {
+static inline Cbl4f cbl4fSplatW(Cbl4f v4f) {
     return cbl4fSplat(v4f.w_);
 }
 
-CBL_INLINE Cbl4f cbl4fAdd(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fAdd(Cbl4f lhs, Cbl4f rhs) {
     return cbl4fNew(lhs.x_ + rhs.x_, lhs.y_ + rhs.y_, lhs.z_ + rhs.z_, lhs.w_ + rhs.w_);
 }
 
-CBL_INLINE Cbl4f cbl4fSub(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fSub(Cbl4f lhs, Cbl4f rhs) {
     return cbl4fNew(lhs.x_ - rhs.x_, lhs.y_ - rhs.y_, lhs.z_ - rhs.z_, lhs.w_ - rhs.w_);
 }
 
-CBL_INLINE Cbl4f cbl4fMul(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fMul(Cbl4f lhs, Cbl4f rhs) {
     return cbl4fNew(lhs.x_ * rhs.x_, lhs.y_ * rhs.y_, lhs.z_ * rhs.z_, lhs.w_ * rhs.w_);
 }
 
-CBL_INLINE Cbl4f cbl4fDiv(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fDiv(Cbl4f lhs, Cbl4f rhs) {
     return cbl4fNew(lhs.x_ / rhs.x_, lhs.y_ / rhs.y_, lhs.z_ / rhs.z_, lhs.w_ / rhs.w_);
 }
 
-CBL_INLINE Cbl4f cbl4fRecip(Cbl4f v4f) {
+static inline Cbl4f cbl4fRecip(Cbl4f v4f) {
     return cbl4fNew(1.0f / v4f.x_, 1.0f / v4f.y_, 1.0f / v4f.z_, 1.0f / v4f.w_);
 }
 
-CBL_INLINE Cbl4f cbl4fRecipFast(Cbl4f v4f) {
+static inline Cbl4f cbl4fRecipFast(Cbl4f v4f) {
     return cbl4fRecip(v4f);
 }
 
-CBL_INLINE Cbl4f cbl4fSqrt(Cbl4f v4f) {
+static inline Cbl4f cbl4fSqrt(Cbl4f v4f) {
     return cbl4fNew(sqrtf(v4f.x_), sqrtf(v4f.y_), sqrtf(v4f.z_), sqrtf(v4f.w_));
 }
 
-CBL_INLINE Cbl4f cbl4fSqrtFast(Cbl4f v4f) {
+static inline Cbl4f cbl4fSqrtFast(Cbl4f v4f) {
     return cbl4fSqrt(v4f);
 }
 
-CBL_INLINE Cbl4f cbl4fRecipSqrt(Cbl4f v4f) {
+static inline Cbl4f cbl4fRecipSqrt(Cbl4f v4f) {
     return cbl4fRecip(cbl4fSqrt(v4f));
 }
 
-CBL_INLINE Cbl4f cbl4fRecipSqrtFast(Cbl4f v4f) {
+static inline Cbl4f cbl4fRecipSqrtFast(Cbl4f v4f) {
     return cbl4fRecipSqrt(v4f);
 }
 
-CBL_INLINE Cbl4f cbl4fCross(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fCross(Cbl4f lhs, Cbl4f rhs) {
     return cbl4fNew(lhs.y_ * rhs.z_ - lhs.z_ * rhs.y_,
                     lhs.z_ * rhs.x_ - lhs.x_ * rhs.z_,
                     lhs.x_ * rhs.y_ - lhs.y_ * rhs.x_, 0.0f);
 }
 
-CBL_INLINE Cbl4f cbl4fMin(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fMin(Cbl4f lhs, Cbl4f rhs) {
     return cbl4fNew(fminf(lhs.x_, rhs.x_), fminf(lhs.y_, rhs.y_),
                     fminf(lhs.z_, rhs.z_), fminf(lhs.w_, rhs.w_));
 }
 
-CBL_INLINE Cbl4f cbl4fMax(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fMax(Cbl4f lhs, Cbl4f rhs) {
     return cbl4fNew(fmaxf(lhs.x_, rhs.x_), fmaxf(lhs.y_, rhs.y_),
                     fmaxf(lhs.z_, rhs.z_), fmaxf(lhs.w_, rhs.w_));
 }
 
-CBL_INLINE Cbl4f cbl4fAbs(Cbl4f v4f) {
+static inline Cbl4f cbl4fAbs(Cbl4f v4f) {
     return cbl4fNew(fabsf(v4f.x_), fabsf(v4f.y_), fabsf(v4f.z_), fabsf(v4f.w_));
 }
 
-CBL_INLINE Cbl4f cbl4fNeq(Cbl4f v4f) {
+static inline Cbl4f cbl4fNeq(Cbl4f v4f) {
     return cbl4fNew(-v4f.x_, -v4f.y_, -v4f.z_, -v4f.w_);
 }
 

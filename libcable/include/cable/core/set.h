@@ -3,6 +3,8 @@
 
 #include <cable/core/object.h>
 
+CBL_EXTERN_BEGIN
+
 typedef const struct CblSet CblSet;
 typedef struct CblSet CblMutableSet;
 CblClass * const CBL_SET_CLASS;
@@ -49,5 +51,7 @@ void cblSetSet(CblMutableSet *set, const void *element);
 void cblSetRemove(CblMutableSet *set, const void *element);
 
 void cblSetEmpty(CblMutableSet *set);
+
+CBL_EXTERN_END
 
 #endif // CBL_CORE_SET_H_

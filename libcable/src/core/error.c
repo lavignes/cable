@@ -1,4 +1,4 @@
-#include <errno.h>
+#include <string.h>
 
 #include <cable/core/error.h>
 #include <cable/core/string.h>
@@ -51,8 +51,8 @@ CblError *cblErrorNew(CblAllocator *alloc, CblString *domain, int code) {
     return cblErrorNewWithReason(alloc, domain, code, NULL);
 }
 
-CblError *cblErrorNewFromErrno(CblAllocator *alloc, int code) {
-    CblString *reason = cblStringNewFromCString(alloc, strerror(code));
+CblError *cblErrorNewWithErrno(CblAllocator *alloc, int code) {
+    CblString *reason = cblStringNewWithCString(alloc, strerror(code));
     cblReturnUnless(reason, NULL);
     CblError *error = cblErrorNewWithReason(alloc, NULL, code, reason);
     cblDisown(reason);
@@ -63,7 +63,7 @@ CblError *cblErrorNewWithReason(CblAllocator *alloc, CblString *domain, int code
     CblError *error = cblAllocatorAllocate(alloc, sizeof(CblError));
     cblReturnUnless(error, NULL);
     cblInitialize(error, alloc, &ERROR_CLASS);
-    error->domain = domain ?: cblStringNewFromCString(alloc, "Error");
+    error->domain = domain ?: cblStringNewWithCString(alloc, "Error");
     error->code = code;
     error->reason = reason;
     return error;

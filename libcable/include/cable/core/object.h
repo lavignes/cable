@@ -5,13 +5,18 @@
 
 #include <cable/porting.h>
 
+#if __has_attribute(__cleanup__)
+#define autodisown
+#else
+
+#endif
+
 CBL_EXTERN_BEGIN
 
 typedef const void CblObject;
 typedef const struct CblClass CblClass;
 typedef struct CblAllocator CblAllocator;
 typedef const struct CblString CblString;
-typedef const struct CblData CblData;
 
 typedef void (*CblObjectFinalizeCallback)(CblObject *obj);
 typedef size_t (*CblObjectHashCallback)(CblObject *obj);

@@ -2,10 +2,12 @@
 #define CBL_TEST_H_
 
 #include <cable/core/object.h>
-#include <cable/core/error.h>
-#include <cable/core/stream.h>
 
 CBL_EXTERN_BEGIN
+
+typedef struct CblStream CblStream;
+typedef struct CblStream CblOutputStream;
+typedef struct CblError CblError;
 
 typedef struct CblTest CblTest;
 CblClass * const CBL_TEST_CLASS;

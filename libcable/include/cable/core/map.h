@@ -3,6 +3,8 @@
 
 #include <cable/core/object.h>
 
+CBL_EXTERN_BEGIN
+
 typedef const struct CblMap CblMap;
 typedef struct CblMap CblMutableMap;
 CblClass * const CBL_MAP_CLASS;
@@ -68,5 +70,7 @@ void cblMapSet(CblMutableMap *map, const void *key, const void *value);
 void cblMapRemove(CblMutableMap *map, const void *key);
 
 void cblMapEmpty(CblMutableMap *map);
+
+CBL_EXTERN_END
 
 #endif // CBL_CORE_MAP_H_

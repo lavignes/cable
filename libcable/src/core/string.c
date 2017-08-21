@@ -1,7 +1,10 @@
 #include <string.h>
+#include <stdio.h>
 
 #include <cable/core/string.h>
 #include <cable/core/allocator.h>
+#include <cable/core/stream.h>
+#include <cable/core/data.h>
 
 static const int CONTINUATION_BYTES[256] = {
         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -14,11 +17,11 @@ static const int CONTINUATION_BYTES[256] = {
         3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,6,6,1,1
 };
 
-static CBL_INLINE const uint8_t *utf8Next(const uint8_t *bytes) {
+static inline const uint8_t *utf8Next(const uint8_t *bytes) {
     return bytes + CONTINUATION_BYTES[*bytes];
 }
 
-static CBL_INLINE size_t utf8Strnlen(const uint8_t *bytes, size_t size) {
+static inline size_t utf8Strnlen(const uint8_t *bytes, size_t size) {
     cblReturnUnless(bytes && size > 0, 0);
     size_t length = 0;
     const uint8_t *start = bytes;
@@ -84,20 +87,24 @@ CblString *cblStringNewWithBytes(CblAllocator *alloc, const uint8_t *bytes, size
     return cblMutableStringNewWithBytes(alloc, bytes, length, encoding);
 }
 
-CblString *cblStringNewFromCString(CblAllocator *alloc, const char *string) {
-    return cblMutableStringNewFromCString(alloc, string);
+CblMutableString *cblStringNewWithData(CblAllocator *alloc, CblData *data, CblStringEncoding encoding) {
+    return cblMutableStringNewWithData(alloc, data, encoding);
 }
 
-CblString *cblStringNewFromCFormat(CblAllocator *alloc, const char *format, ...) {
+CblString *cblStringNewWithCString(CblAllocator *alloc, const char *string) {
+    return cblMutableStringNewWithCString(alloc, string);
+}
+
+CblString *cblStringNewWithCFormat(CblAllocator *alloc, const char *format, ...) {
     va_list args;
     va_start(args, format);
-    CblString *string = cblMutableStringNewFromCFormatList(alloc, format, args);
+    CblString *string = cblMutableStringNewWithCFormatList(alloc, format, args);
     va_end(args);
     return string;
 }
 
-CblString *cblStringNewFromCFormatList(CblAllocator *alloc, const char *format, va_list args) {
-    return cblMutableStringNewFromCFormatList(alloc, format, args);
+CblString *cblStringNewWithCFormatList(CblAllocator *alloc, const char *format, va_list args) {
+    return cblMutableStringNewWithCFormatList(alloc, format, args);
 }
 
 CblString *cblStringNewCopy(CblAllocator *alloc, CblString *string) {
@@ -123,19 +130,24 @@ CblMutableString *cblMutableStringNewWithBytes(CblAllocator *alloc, const uint8_
     return string;
 }
 
-CblMutableString *cblMutableStringNewFromCString(CblAllocator *alloc, const char *string) {
+CblMutableString *cblMutableStringNewWithData(CblAllocator *alloc, CblData *data, CblStringEncoding encoding) {
+    cblReturnUnless(data, NULL);
+    return cblMutableStringNewWithBytes(alloc, cblDataGetBytePointer(data), cblDataGetLength(data), encoding);
+}
+
+CblMutableString *cblMutableStringNewWithCString(CblAllocator *alloc, const char *string) {
     return cblMutableStringNewWithBytes(alloc, (const uint8_t *)string, strlen(string), CBL_STRING_ENCODING_UTF8);
 }
 
-CblMutableString *cblMutableStringNewFromCFormat(CblAllocator *alloc, const char *format, ...) {
+CblMutableString *cblMutableStringNewWithCFormat(CblAllocator *alloc, const char *format, ...) {
     va_list args;
     va_start(args, format);
-    CblMutableString *string = cblMutableStringNewFromCFormatList(alloc, format, args);
+    CblMutableString *string = cblMutableStringNewWithCFormatList(alloc, format, args);
     va_end(args);
     return string;
 }
 
-CblMutableString *cblMutableStringNewFromCFormatList(CblAllocator *alloc, const char *format, va_list args) {
+CblMutableString *cblMutableStringNewWithCFormatList(CblAllocator *alloc, const char *format, va_list args) {
     va_list argscopy;
     va_copy(argscopy, args);
     int count = vsnprintf(NULL, 0, format, argscopy);
@@ -240,7 +252,7 @@ void cblStringAppendCFormat(CblMutableString *string, const char *format, ...) {
 
 void cblStringAppendCFormatList(CblMutableString *string, const char *format, va_list args) {
     cblBailUnless(string && format);
-    CblString *temp = cblStringNewFromCFormatList(cblGetAllocator(string), format, args);
+    CblString *temp = cblStringNewWithCFormatList(cblGetAllocator(string), format, args);
     cblStringAppend(string, temp);
     cblDisown(temp);
 }

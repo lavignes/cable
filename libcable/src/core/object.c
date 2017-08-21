@@ -70,7 +70,7 @@ CblAllocator *cblGetAllocator(CblObject *obj) {
 }
 
 CblString *cblGetString(CblAllocator *alloc, CblObject *obj) {
-    cblReturnUnless(obj, cblStringNewFromCString(alloc, "(null)"));
+    cblReturnUnless(obj, cblStringNewWithCString(alloc, "(null)"));
     if (!alloc) {
         alloc = GET(obj)->alloc;
     }
@@ -78,7 +78,7 @@ CblString *cblGetString(CblAllocator *alloc, CblObject *obj) {
     if (string) {
         return string(alloc, obj);
     }
-    return cblStringNewFromCFormat(alloc, "(%s)", GET(obj)->isa->name);
+    return cblStringNewWithCFormat(alloc, "(%s)", GET(obj)->isa->name);
 }
 
 void cblInitialize(CblObject *obj, CblAllocator *alloc, CblClass *cls) {

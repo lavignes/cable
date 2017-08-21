@@ -2,12 +2,14 @@
 #define CBL_CORE_STRING_H_
 
 #include <stdarg.h>
-#include <string.h>
 
 #include <cable/core/object.h>
-#include <cable/core/data.h>
-#include "error.h"
-#include "stream.h"
+
+typedef struct CblStream CblStream;
+typedef struct CblStream CblOutputStream;
+typedef struct CblError CblError;
+typedef const struct CblData CblData;
+typedef struct CblData CblMutableData;
 
 typedef enum CblStringEncoding CblStringEncoding;
 enum CblStringEncoding {
@@ -22,11 +24,13 @@ typedef bool (*CblStringForeachFunction)(CblString *string, char32_t uniChar, si
 
 CblString *cblStringNewWithBytes(CblAllocator *alloc, const uint8_t *bytes, size_t length, CblStringEncoding encoding);
 
-CblString *cblStringNewFromCString(CblAllocator *alloc, const char *string);
+CblMutableString *cblStringNewWithData(CblAllocator *alloc, CblData *data, CblStringEncoding encoding);
 
-CblString *cblStringNewFromCFormat(CblAllocator *alloc, const char *format, ...);
+CblString *cblStringNewWithCString(CblAllocator *alloc, const char *string);
 
-CblString *cblStringNewFromCFormatList(CblAllocator *alloc, const char *format, va_list args);
+CblString *cblStringNewWithCFormat(CblAllocator *alloc, const char *format, ...);
+
+CblString *cblStringNewWithCFormatList(CblAllocator *alloc, const char *format, va_list args);
 
 CblString *cblStringNewCopy(CblAllocator *alloc, CblString *string);
 
@@ -34,11 +38,13 @@ CblMutableString *cblMutableStringNew(CblAllocator *alloc);
 
 CblMutableString *cblMutableStringNewWithBytes(CblAllocator *alloc, const uint8_t *bytes, size_t length, CblStringEncoding encoding);
 
-CblMutableString *cblMutableStringNewFromCString(CblAllocator *alloc, const char *string);
+CblMutableString *cblMutableStringNewWithData(CblAllocator *alloc, CblData *data, CblStringEncoding encoding);
 
-CblMutableString *cblMutableStringNewFromCFormat(CblAllocator *alloc, const char *format, ...);
+CblMutableString *cblMutableStringNewWithCString(CblAllocator *alloc, const char *string);
 
-CblMutableString *cblMutableStringNewFromCFormatList(CblAllocator *alloc, const char *format, va_list args);
+CblMutableString *cblMutableStringNewWithCFormat(CblAllocator *alloc, const char *format, ...);
+
+CblMutableString *cblMutableStringNewWithCFormatList(CblAllocator *alloc, const char *format, va_list args);
 
 CblMutableString *cblMutableStringNewCopy(CblAllocator *alloc, CblString *string);
 

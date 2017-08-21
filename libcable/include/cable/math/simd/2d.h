@@ -25,116 +25,116 @@ typedef union {
     };
 } Cbl2dSIMDUnion_;
 
-CBL_INLINE Cbl2d cbl2dNew(double x, double y) {
+static inline Cbl2d cbl2dNew(double x, double y) {
     return _mm_setr_pd(x, y);
 }
 
-CBL_INLINE Cbl2d cbl2dZero() {
+static inline Cbl2d cbl2dZero() {
     return _mm_setzero_pd();
 }
 
-CBL_INLINE bool cbl2dEqual(Cbl2d lhs, Cbl2d rhs) {
+static inline bool cbl2dEqual(Cbl2d lhs, Cbl2d rhs) {
     return 0x0F == _mm_movemask_pd(_mm_cmpeq_pd(lhs, rhs));
 }
 
-CBL_INLINE bool cbl2dLessThan(Cbl2d lhs, Cbl2d rhs) {
+static inline bool cbl2dLessThan(Cbl2d lhs, Cbl2d rhs) {
     return 0x0F == _mm_movemask_pd(_mm_cmplt_pd(lhs, rhs));
 }
 
-CBL_INLINE bool cbl2dGreaterThan(Cbl2d lhs, Cbl2d rhs) {
+static inline bool cbl2dGreaterThan(Cbl2d lhs, Cbl2d rhs) {
     return 0x0F == _mm_movemask_pd(_mm_cmpgt_pd(lhs, rhs));
 }
 
-CBL_INLINE Cbl2d cbl2dMap(Cbl2d v2d, double (*fn)(double)) {
+static inline Cbl2d cbl2dMap(Cbl2d v2d, double (*fn)(double)) {
     Cbl2dSIMDUnion_ u = {v2d};
     return cbl2dNew(fn(u.x_), fn(u.y_));
 }
 
-CBL_INLINE Cbl2d cbl2dLoad(const double *arr) {
+static inline Cbl2d cbl2dLoad(const double *arr) {
     return _mm_load_pd(arr);
 }
 
-CBL_INLINE void cbl2dStore(Cbl2d v2d, double *arr) {
+static inline void cbl2dStore(Cbl2d v2d, double *arr) {
     _mm_storeu_pd(arr, v2d);
 }
 
-CBL_INLINE double cbl2dGetX(Cbl2d v2d) {
+static inline double cbl2dGetX(Cbl2d v2d) {
     Cbl2dSIMDUnion_ u = {v2d};
     return u.x_;
 }
 
-CBL_INLINE double cbl2dGetY(Cbl2d v2d) {
+static inline double cbl2dGetY(Cbl2d v2d) {
     Cbl2dSIMDUnion_ u = {v2d};
     return u.y_;
 }
 
 #define cbl2dSwizzle(v2d, swizzle) (_mm_shuffle_pd((v2d), (v2d), (swizzle)))
 
-CBL_INLINE Cbl2d cbl2dSplat(double d) {
+static inline Cbl2d cbl2dSplat(double d) {
     return _mm_set1_pd(d);
 }
 
-CBL_INLINE Cbl2d cbl2dSplatX(Cbl2d v2d) {
+static inline Cbl2d cbl2dSplatX(Cbl2d v2d) {
     return cbl2dSwizzle(v2d, CBL_2D_SWIZZLE_XX);
 }
 
-CBL_INLINE Cbl2d cbl2dSplatY(Cbl2d v2d) {
+static inline Cbl2d cbl2dSplatY(Cbl2d v2d) {
     return cbl2dSwizzle(v2d, CBL_2D_SWIZZLE_YY);
 }
 
-CBL_INLINE Cbl2d cbl2dAdd(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dAdd(Cbl2d lhs, Cbl2d rhs) {
     return _mm_add_pd(lhs, rhs);
 }
 
-CBL_INLINE Cbl2d cbl2dSub(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dSub(Cbl2d lhs, Cbl2d rhs) {
     return _mm_sub_pd(lhs, rhs);
 }
 
-CBL_INLINE Cbl2d cbl2dMul(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dMul(Cbl2d lhs, Cbl2d rhs) {
     return _mm_mul_pd(lhs, rhs);
 }
 
-CBL_INLINE Cbl2d cbl2dDiv(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dDiv(Cbl2d lhs, Cbl2d rhs) {
     return _mm_div_pd(lhs, rhs);
 }
 
-CBL_INLINE Cbl2d cbl2dRecip(Cbl2d v2d) {
+static inline Cbl2d cbl2dRecip(Cbl2d v2d) {
     return _mm_div_pd(cbl2dSplat(1.0f), v2d);
 }
 
-CBL_INLINE Cbl2d cbl2dSqrt(Cbl2d v2d) {
+static inline Cbl2d cbl2dSqrt(Cbl2d v2d) {
     Cbl2dSIMDUnion_ u = {v2d};
     return cbl2dNew(sqrt(u.x_), sqrt(u.y_));
 }
 
-CBL_INLINE Cbl2d cbl2dSqrtFast(Cbl2d v2d) {
+static inline Cbl2d cbl2dSqrtFast(Cbl2d v2d) {
     return _mm_sqrt_pd(v2d);
 }
 
-CBL_INLINE Cbl2d cbl2dRecipSqrt(Cbl2d v2d) {
+static inline Cbl2d cbl2dRecipSqrt(Cbl2d v2d) {
     return cbl2dRecip(cbl2dSqrt(v2d));
 }
 
-CBL_INLINE double cbl2dCross(Cbl2d lhs, Cbl2d rhs) {
+static inline double cbl2dCross(Cbl2d lhs, Cbl2d rhs) {
     Cbl2dSIMDUnion_ u1 = {lhs};
     Cbl2dSIMDUnion_ u2 = {rhs};
     return u1.x_ * u2.y_ - u1.y_ * u2.x_;
 }
 
-CBL_INLINE Cbl2d cbl2dMin(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dMin(Cbl2d lhs, Cbl2d rhs) {
     return _mm_min_pd(lhs, rhs);
 }
 
-CBL_INLINE Cbl2d cbl2dMax(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dMax(Cbl2d lhs, Cbl2d rhs) {
     return _mm_max_pd(lhs, rhs);
 }
 
-CBL_INLINE Cbl2d cbl2dAbs(Cbl2d v2d) {
+static inline Cbl2d cbl2dAbs(Cbl2d v2d) {
     // removes sign bit
     return _mm_andnot_pd(_mm_castsi128_pd(_mm_set1_epi64x(0x8000000000000000)), v2d);
 }
 
-CBL_INLINE Cbl2d cbl2dNeg(Cbl2d v2d) {
+static inline Cbl2d cbl2dNeg(Cbl2d v2d) {
     // flips sign bit
     return _mm_xor_pd(_mm_castsi128_pd(_mm_set1_epi64x(0x8000000000000000)), v2d);
 }

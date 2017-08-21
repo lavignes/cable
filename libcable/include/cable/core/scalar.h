@@ -3,6 +3,8 @@
 
 #include <cable/core/object.h>
 
+CBL_EXTERN_BEGIN
+
 typedef struct CblScalar CblScalar;
 CblClass * const CBL_SCALAR_CLASS;
 
@@ -73,5 +75,7 @@ intptr_t cblScalarIntPointerValue(CblScalar *scalar);
 CblScalar *cblScalarNewUIntPointer(CblAllocator *alloc, uintptr_t value);
 
 uintptr_t cblScalarUIntPointerValue(CblScalar *scalar);
+
+CBL_EXTERN_END
 
 #endif // CBL_CORE_SCALAR_H_

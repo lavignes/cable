@@ -1,5 +1,4 @@
-#include <cable/core/test.h>
-#include <cable/core/string.h>
+#include <cable/core.h>
 
 static void alwaysFails(CblTest *it) {
     cblTestTrue(it, "always fails", false);
@@ -59,25 +58,29 @@ static void failingSetupAndTeardown(CblTest *it) {
 
     cblTestRunnerSetup(runner, alwaysFails);
     cblTestRunnerAdd(runner, "A passing test", alwaysPasses);
+    cblTestRunnerAdd(runner, "A failing test", alwaysFails);
     cblTestRunnerTeardown(runner, alwaysFails);
 
     CblMutableData *data = cblMutableDataNew(NULL, 0);
-    CblOutputStream *stream = cblOutputStreamNewFromData(NULL, data, false);
+    CblOutputStream *stream = cblOutputStreamNewWithData(NULL, data, false);
 
-    cblTestTrue(it, "should return 1", cblTestRunnerRunLog(runner, stream, NULL) == 1);
+    cblTestTrue(it, "should return 2", cblTestRunnerRunLog(runner, stream, NULL) == 2);
     cblDisown(runner);
     cblDisown(stream);
 
-    CblString *log = cblStringNewWithBytes(NULL,
-                                           cblDataGetBytePointer(data),
-                                           cblDataGetLength(data),
-                                           CBL_STRING_ENCODING_UTF8);
+    CblString *log = cblStringNewWithData(NULL, data, CBL_STRING_ENCODING_UTF8);
     cblDisown(data);
-    CblString *expectedLog = cblStringNewFromCString(NULL,
-         "A passing test\n"
-         "  ✘ it always fails\n"
-         "  ✔ it always passes\n"
-         "  ✘ it always fails\n"
+
+    CblString *expectedLog = cblStringNewWithCString(NULL,
+                                                     "A passing test\n"
+                                                             "  ✘ it always fails\n"
+                                                             "  ✔ it always passes\n"
+                                                             "  ✘ it always fails\n"
+                                                             "\n"
+                                                             "A failing test\n"
+                                                             "  ✘ it always fails\n"
+                                                             "  ✘ it always fails\n"
+                                                             "  ✘ it always fails\n"
     );
 
     cblTestEquals(it, "will have failing setup and teardown in its logs", expectedLog, log);
@@ -95,7 +98,7 @@ int main() {
     cblTestRunnerAdd(runner, "A test runner with two passing tests", twoPassingTests);
     cblTestRunnerAdd(runner, "A test runner with a failing setup and teardown", failingSetupAndTeardown);
 
-    CblOutputStream *stream = cblOutputStreamNewFromCStream(NULL, stderr);
+    CblOutputStream *stream = cblOutputStreamNewWithCStream(NULL, stderr);
     int status = cblTestRunnerRunLog(runner, stream, NULL);
     cblDisown(stream);
 

@@ -43,18 +43,18 @@ static size_t hashCallback(CblScalar *scalar) {
 static CblString *stringCallback(CblAllocator *alloc, CblScalar *scalar) {
     switch (scalar->species) {
         case BOOL:
-            return cblStringNewFromCString(alloc, scalar->boolValue? "1" : "0");
+            return cblStringNewWithCString(alloc, scalar->boolValue ? "1" : "0");
 
         case DOUBLE:
-            return cblStringNewFromCFormat(alloc, "%g", scalar->doubleValue);
+            return cblStringNewWithCFormat(alloc, "%g", scalar->doubleValue);
 
         case SIZE:
-            return cblStringNewFromCFormat(alloc, "%zd", scalar->doubleValue);
+            return cblStringNewWithCFormat(alloc, "%zd", scalar->doubleValue);
 
         case USIZE:
-            return cblStringNewFromCFormat(alloc, "%zu", scalar->doubleValue);
+            return cblStringNewWithCFormat(alloc, "%zu", scalar->doubleValue);
     }
-    return cblStringNewFromCString(alloc, "(null)");
+    return cblStringNewWithCString(alloc, "(null)");
 }
 
 static int scalarCompare(CblScalar *lhs, CblScalar *rhs) {

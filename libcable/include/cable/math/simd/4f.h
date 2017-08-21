@@ -277,143 +277,143 @@ typedef union {
     };
 } Cbl4fSIMDUnion_;
 
-CBL_INLINE Cbl4f cbl4fNew(float x, float y, float z, float w) {
+static inline Cbl4f cbl4fNew(float x, float y, float z, float w) {
     return _mm_setr_ps(x, y, z, w);
 }
 
-CBL_INLINE Cbl4f cbl4fZero() {
+static inline Cbl4f cbl4fZero() {
     return _mm_setzero_ps();
 }
 
-CBL_INLINE bool cbl4fEqual(Cbl4f lhs, Cbl4f rhs) {
+static inline bool cbl4fEqual(Cbl4f lhs, Cbl4f rhs) {
     return 0x0F == _mm_movemask_ps(_mm_cmpeq_ps(lhs, rhs));
 }
 
-CBL_INLINE bool cbl4fLessThan(Cbl4f lhs, Cbl4f rhs) {
+static inline bool cbl4fLessThan(Cbl4f lhs, Cbl4f rhs) {
     return 0x0F == _mm_movemask_ps(_mm_cmplt_ps(lhs, rhs));
 }
 
-CBL_INLINE bool cbl4fGreaterThan(Cbl4f lhs, Cbl4f rhs) {
+static inline bool cbl4fGreaterThan(Cbl4f lhs, Cbl4f rhs) {
     return 0x0F == _mm_movemask_ps(_mm_cmpgt_ps(lhs, rhs));
 }
 
-CBL_INLINE Cbl4f cbl4fMap(Cbl4f v4f, float (*fn)(float)) {
+static inline Cbl4f cbl4fMap(Cbl4f v4f, float (*fn)(float)) {
     Cbl4fSIMDUnion_ u = {v4f};
     return cbl4fNew(fn(u.x_), fn(u.y_), fn(u.z_), fn(u.w_));
 }
 
-CBL_INLINE Cbl4f cbl4fLoad(const float *arr) {
+static inline Cbl4f cbl4fLoad(const float *arr) {
     return _mm_load_ps(arr);
 }
 
-CBL_INLINE void cbl4fStore(Cbl4f v4f, float *arr) {
+static inline void cbl4fStore(Cbl4f v4f, float *arr) {
     _mm_storeu_ps(arr, v4f);
 }
 
-CBL_INLINE float cbl4fGetX(Cbl4f v4f) {
+static inline float cbl4fGetX(Cbl4f v4f) {
     Cbl4fSIMDUnion_ u = {v4f};
     return u.x_;
 }
 
-CBL_INLINE float cbl4fGetY(Cbl4f v4f) {
+static inline float cbl4fGetY(Cbl4f v4f) {
     Cbl4fSIMDUnion_ u = {v4f};
     return u.y_;
 }
 
-CBL_INLINE float cbl4fGetZ(Cbl4f v4f) {
+static inline float cbl4fGetZ(Cbl4f v4f) {
     Cbl4fSIMDUnion_ u = {v4f};
     return u.z_;
 }
 
-CBL_INLINE float cbl4fGetW(Cbl4f v4f) {
+static inline float cbl4fGetW(Cbl4f v4f) {
     Cbl4fSIMDUnion_ u = {v4f};
     return u.w_;
 }
 
 #define cbl4fSwizzle(v4f, swizzle) (_mm_shuffle_ps((v4f), (v4f), (swizzle)))
 
-CBL_INLINE Cbl4f cbl4fSplat(float f) {
+static inline Cbl4f cbl4fSplat(float f) {
     return _mm_set1_ps(f);
 }
 
-CBL_INLINE Cbl4f cbl4fSplatX(Cbl4f v4f) {
+static inline Cbl4f cbl4fSplatX(Cbl4f v4f) {
     return cbl4fSwizzle(v4f, CBL_4F_SWIZZLE_XXXX);
 }
 
-CBL_INLINE Cbl4f cbl4fSplatY(Cbl4f v4f) {
+static inline Cbl4f cbl4fSplatY(Cbl4f v4f) {
     return cbl4fSwizzle(v4f, CBL_4F_SWIZZLE_YYYY);
 }
 
-CBL_INLINE Cbl4f cbl4fSplatZ(Cbl4f v4f) {
+static inline Cbl4f cbl4fSplatZ(Cbl4f v4f) {
     return cbl4fSwizzle(v4f, CBL_4F_SWIZZLE_ZZZZ);
 }
 
-CBL_INLINE Cbl4f cbl4fSplatW(Cbl4f v4f) {
+static inline Cbl4f cbl4fSplatW(Cbl4f v4f) {
     return cbl4fSwizzle(v4f, CBL_4F_SWIZZLE_WWWW);
 }
 
-CBL_INLINE Cbl4f cbl4fAdd(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fAdd(Cbl4f lhs, Cbl4f rhs) {
     return _mm_add_ps(lhs, rhs);
 }
 
-CBL_INLINE Cbl4f cbl4fSub(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fSub(Cbl4f lhs, Cbl4f rhs) {
     return _mm_sub_ps(lhs, rhs);
 }
 
-CBL_INLINE Cbl4f cbl4fMul(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fMul(Cbl4f lhs, Cbl4f rhs) {
     return _mm_mul_ps(lhs, rhs);
 }
 
-CBL_INLINE Cbl4f cbl4fDiv(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fDiv(Cbl4f lhs, Cbl4f rhs) {
     return _mm_div_ps(lhs, rhs);
 }
 
-CBL_INLINE Cbl4f cbl4fRecip(Cbl4f v4f) {
+static inline Cbl4f cbl4fRecip(Cbl4f v4f) {
     return _mm_div_ps(cbl4fSplat(1.0f), v4f);
 }
 
-CBL_INLINE Cbl4f cbl4fRecipFast(Cbl4f v4f) {
+static inline Cbl4f cbl4fRecipFast(Cbl4f v4f) {
     return _mm_rcp_ps(v4f);
 }
 
-CBL_INLINE Cbl4f cbl4fSqrt(Cbl4f v4f) {
+static inline Cbl4f cbl4fSqrt(Cbl4f v4f) {
     Cbl4fSIMDUnion_ u = {v4f};
     return cbl4fNew(sqrtf(u.x_), sqrtf(u.y_), sqrtf(u.z_), sqrtf(u.w_));
 }
 
-CBL_INLINE Cbl4f cbl4fSqrtFast(Cbl4f v4f) {
+static inline Cbl4f cbl4fSqrtFast(Cbl4f v4f) {
     return _mm_sqrt_ps(v4f);
 }
 
-CBL_INLINE Cbl4f cbl4fRecipSqrt(Cbl4f v4f) {
+static inline Cbl4f cbl4fRecipSqrt(Cbl4f v4f) {
     return cbl4fRecip(cbl4fSqrt(v4f));
 }
 
-CBL_INLINE Cbl4f cbl4fRecipSqrtFast(Cbl4f v4f) {
+static inline Cbl4f cbl4fRecipSqrtFast(Cbl4f v4f) {
     return _mm_rsqrt_ps(v4f);
 }
 
-CBL_INLINE Cbl4f cbl4fCross(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fCross(Cbl4f lhs, Cbl4f rhs) {
     return cbl4fSub(cbl4fMul(cbl4fSwizzle(lhs, CBL_4F_SWIZZLE_WXZY),
                              cbl4fSwizzle(rhs, CBL_4F_SWIZZLE_WYXZ)),
                     cbl4fMul(cbl4fSwizzle(lhs, CBL_4F_SWIZZLE_WYXZ),
                              cbl4fSwizzle(rhs, CBL_4F_SWIZZLE_WXZY)));
 }
 
-CBL_INLINE Cbl4f cbl4fMin(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fMin(Cbl4f lhs, Cbl4f rhs) {
     return _mm_min_ps(lhs, rhs);
 }
 
-CBL_INLINE Cbl4f cbl4fMax(Cbl4f lhs, Cbl4f rhs) {
+static inline Cbl4f cbl4fMax(Cbl4f lhs, Cbl4f rhs) {
     return _mm_max_ps(lhs, rhs);
 }
 
-CBL_INLINE Cbl4f cbl4fAbs(Cbl4f v4f) {
+static inline Cbl4f cbl4fAbs(Cbl4f v4f) {
     // removes sign bit
     return _mm_andnot_ps(_mm_castsi128_ps(_mm_set1_epi32(0x80000000)), v4f);
 }
 
-CBL_INLINE Cbl4f cbl4fNeg(Cbl4f v4f) {
+static inline Cbl4f cbl4fNeg(Cbl4f v4f) {
     // flips sign bit
     return _mm_xor_ps(_mm_castsi128_ps(_mm_set1_epi32(0x80000000)), v4f);
 }

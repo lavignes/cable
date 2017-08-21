@@ -10,7 +10,7 @@ CblClass * const CBL_ERROR_CLASS;
 
 CblError *cblErrorNew(CblAllocator *alloc, CblString *domain, int code);
 
-CblError *cblErrorNewFromErrno(CblAllocator *alloc, int code);
+CblError *cblErrorNewWithErrno(CblAllocator *alloc, int code);
 
 CblError *cblErrorNewWithReason(CblAllocator *alloc, CblString *domain, int code, CblString *reason);
 

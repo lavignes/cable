@@ -85,7 +85,7 @@ static CblString *stringCallback(CblAllocator *alloc, CblMutableMap *map) {
     const CblMapKeyContext *keyContext = &map->keyContext;
     const CblMapValueContext *valueContext = &map->valueContext;
     cblReturnUnless(keyContext->stringCallback && valueContext->stringCallback, NULL);
-    CblMutableString *string = cblMutableStringNewFromCString(alloc, "{");
+    CblMutableString *string = cblMutableStringNewWithCString(alloc, "{");
     StringForeachUserData userData = {alloc, string, keyContext->stringCallback, valueContext->stringCallback, 0};
     cblMapForeach(map, (CblMapForeachFunction)stringForeach, &userData);
     cblStringAppendCString(string, "}");

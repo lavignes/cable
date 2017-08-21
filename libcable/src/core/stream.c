@@ -1,8 +1,11 @@
 #include <errno.h>
+#include <string.h>
 
 #include <cable/core/stream.h>
 #include <cable/core/allocator.h>
 #include <cable/core/string.h>
+#include <cable/core/error.h>
+#include <cable/core/data.h>
 
 typedef enum Species Species;
 enum Species {
@@ -49,13 +52,13 @@ static CblClass STREAM_CLASS = {
 
 CblClass * const CBL_STREAM_CLASS = &STREAM_CLASS;
 
-static CBL_INLINE FILE *openStream(CblAllocator *alloc, const char *location, const char *mode, CblError **error) {
+static inline FILE *openStream(CblAllocator *alloc, const char *location, const char *mode, CblError **error) {
     cblReturnUnless(location, NULL);
     FILE *cstream = fopen(location, "rb");
     int err = errno;
     if (!cstream) {
         if (error) {
-            *error = cblErrorNewFromErrno(alloc, err);
+            *error = cblErrorNewWithErrno(alloc, err);
         }
         return NULL;
     }
@@ -73,7 +76,7 @@ void cblStreamClose(CblAllocator *alloc, CblStream *stream, CblError **error) {
             break;
     }
     if (code != 0 && error) {
-        *error = cblErrorNewFromErrno(alloc, errno);
+        *error = cblErrorNewWithErrno(alloc, errno);
     }
 }
 
@@ -88,21 +91,21 @@ void cblStreamFlush(CblAllocator *alloc, CblStream *stream, CblError **error) {
             break;
     }
     if (code != 0 && error) {
-        *error = cblErrorNewFromErrno(alloc, errno);
+        *error = cblErrorNewWithErrno(alloc, errno);
     }
 }
 
 CblInputStream *cblInputStreamNew(CblAllocator *alloc, const char *location, CblError **error) {
     FILE *cstream = openStream(alloc, location, "rb", error);
     cblReturnUnless(cstream, NULL);
-    CblInputStream *stream = cblInputStreamNewFromCStream(alloc, cstream);
+    CblInputStream *stream = cblInputStreamNewWithCStream(alloc, cstream);
     if (!stream) {
         fclose(cstream);
     }
     return stream;
 }
 
-CblInputStream *cblInputStreamNewFromCStream(CblAllocator *alloc, FILE *cstream) {
+CblInputStream *cblInputStreamNewWithCStream(CblAllocator *alloc, FILE *cstream) {
     cblReturnUnless(cstream, NULL);
     CblInputStream *stream = cblAllocatorAllocate(alloc, sizeof(CblStream));
     cblReturnUnless(stream, NULL);
@@ -112,7 +115,7 @@ CblInputStream *cblInputStreamNewFromCStream(CblAllocator *alloc, FILE *cstream)
     return stream;
 }
 
-CblInputStream *cblInputStreamNewFromData(CblAllocator *alloc, CblData *data) {
+CblInputStream *cblInputStreamNewWithData(CblAllocator *alloc, CblData *data) {
     cblReturnUnless(data, NULL);
     CblInputStream *stream = cblAllocatorAllocate(alloc, sizeof(CblStream));
     cblReturnUnless(stream, NULL);
@@ -134,7 +137,7 @@ size_t cblStreamReadBytes(CblAllocator *alloc, CblInputStream *stream, uint8_t *
             int err = errno;
             if (ferror(cstream)) {
                 if (error) {
-                    *error = cblErrorNewFromErrno(alloc, err);
+                    *error = cblErrorNewWithErrno(alloc, err);
                 }
                 return 0;
             }
@@ -146,7 +149,7 @@ size_t cblStreamReadBytes(CblAllocator *alloc, CblInputStream *stream, uint8_t *
             size_t dataLength = cblDataGetLength(data);
             if (stream->index >= dataLength) {
                 if (error) {
-                    *error = cblErrorNewFromErrno(alloc, EOVERFLOW);
+                    *error = cblErrorNewWithErrno(alloc, EOVERFLOW);
                 }
                 return 0;
             }
@@ -165,14 +168,14 @@ size_t cblStreamReadBytes(CblAllocator *alloc, CblInputStream *stream, uint8_t *
 CblOutputStream *cblOutputStreamNew(CblAllocator *alloc, const char *location, bool append, CblError **error) {
     FILE *cstream = openStream(alloc, location, append ? "wba" : "wb", error);
     cblReturnUnless(cstream, NULL);
-    CblOutputStream *stream = cblOutputStreamNewFromCStream(alloc, cstream);
+    CblOutputStream *stream = cblOutputStreamNewWithCStream(alloc, cstream);
     if (!stream) {
         fclose(cstream);
     }
     return stream;
 }
 
-CblOutputStream *cblOutputStreamNewFromCStream(CblAllocator *alloc, FILE *cstream) {
+CblOutputStream *cblOutputStreamNewWithCStream(CblAllocator *alloc, FILE *cstream) {
     cblReturnUnless(cstream, NULL);
     CblOutputStream *stream = cblAllocatorAllocate(alloc, sizeof(CblStream));
     cblReturnUnless(stream, NULL);
@@ -182,7 +185,7 @@ CblOutputStream *cblOutputStreamNewFromCStream(CblAllocator *alloc, FILE *cstrea
     return stream;
 }
 
-CblOutputStream *cblOutputStreamNewFromData(CblAllocator *alloc, CblMutableData *data, bool append) {
+CblOutputStream *cblOutputStreamNewWithData(CblAllocator *alloc, CblMutableData *data, bool append) {
     cblReturnUnless(data, NULL);
     CblOutputStream *stream = cblAllocatorAllocate(alloc, sizeof(CblStream));
     cblReturnUnless(stream, NULL);
@@ -210,7 +213,7 @@ size_t cblStreamWriteCFormat(CblAllocator *alloc, CblOutputStream *stream, const
 
 size_t cblStreamWriteCFormatList(CblAllocator *alloc, CblOutputStream *stream, const char *format, CblError **error, va_list args) {
     cblReturnUnless(stream && format, 0);
-    CblString *string = cblStringNewFromCFormatList(alloc, format, args);
+    CblString *string = cblStringNewWithCFormatList(alloc, format, args);
     cblReturnUnless(string, 0);
     size_t written = cblStringOutput(alloc, string, stream, CBL_STRING_ENCODING_UTF8, error);
     cblDisown(string);
@@ -232,7 +235,7 @@ size_t cblStreamWriteBytes(CblAllocator *alloc,
             int err = errno;
             if (ferror(cstream)) {
                 if (error) {
-                    *error = cblErrorNewFromErrno(alloc, err);
+                    *error = cblErrorNewWithErrno(alloc, err);
                 }
                 return 0;
             }

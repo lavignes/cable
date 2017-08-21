@@ -28,111 +28,111 @@ typedef struct Cbl2d {
     };
 } Cbl2d;
 
-CBL_INLINE Cbl2d cbl2dNew(double x, double y) {
+static inline Cbl2d cbl2dNew(double x, double y) {
     return (Cbl2d) { .x_ = x, .y_ = y };
 }
 
-CBL_INLINE Cbl2d cbl2dZero() {
+static inline Cbl2d cbl2dZero() {
     return (Cbl2d) { .x_ = 0.0, .y_ = 0.0 };
 }
 
-CBL_INLINE bool cbl2dEqual(Cbl2d lhs, Cbl2d rhs) {
+static inline bool cbl2dEqual(Cbl2d lhs, Cbl2d rhs) {
     return lhs.x_ == rhs.x_ && lhs.y_ == rhs.y_;
 }
 
-CBL_INLINE bool cbl2dLessThan(Cbl2d lhs, Cbl2d rhs) {
+static inline bool cbl2dLessThan(Cbl2d lhs, Cbl2d rhs) {
     return lhs.x_ < rhs.x_ && lhs.y_ < rhs.y_;
 }
 
-CBL_INLINE bool cbl2dGreaterThan(Cbl2d lhs, Cbl2d rhs) {
+static inline bool cbl2dGreaterThan(Cbl2d lhs, Cbl2d rhs) {
     return lhs.x_ > rhs.x_ && lhs.y_ > rhs.y_;
 }
 
-CBL_INLINE Cbl2d cbl2dMap(Cbl2d v2d, double (*fn)(double)) {
+static inline Cbl2d cbl2dMap(Cbl2d v2d, double (*fn)(double)) {
     return cbl2dNew(fn(v2d.x_), fn(v2d.y_));
 }
 
-CBL_INLINE Cbl2d cbl2dLoad(const double *arr) {
+static inline Cbl2d cbl2dLoad(const double *arr) {
     return cbl2dNew(arr[0], arr[1]);
 }
 
-CBL_INLINE void cbl2dStore(Cbl2d v2d, double *arr) {
+static inline void cbl2dStore(Cbl2d v2d, double *arr) {
     memcpy(arr, &v2d, sizeof(Cbl2d));
 }
 
-CBL_INLINE double cbl2dGetX(Cbl2d v2d) {
+static inline double cbl2dGetX(Cbl2d v2d) {
     return v2d.x_;
 }
 
-CBL_INLINE double cbl2dGetY(Cbl2d v2d) {
+static inline double cbl2dGetY(Cbl2d v2d) {
     return v2d.y_;
 }
 
-CBL_INLINE Cbl2d cbl2dSwizzle(Cbl2d v2d, Cbl2dSwizzle swizzle) {
+static inline Cbl2d cbl2dSwizzle(Cbl2d v2d, Cbl2dSwizzle swizzle) {
     return cbl2dNew(v2d.arr_[(swizzle & 0x2) >> 1],
                     v2d.arr_[(swizzle & 0x1)]);
 }
-CBL_INLINE Cbl2d cbl2dSplat(double d) {
+static inline Cbl2d cbl2dSplat(double d) {
     return cbl2dNew(d, d);
 }
 
-CBL_INLINE Cbl2d cbl2dSplatX(Cbl2d v2d) {
+static inline Cbl2d cbl2dSplatX(Cbl2d v2d) {
     return cbl2dSplat(v2d.x_);
 }
 
-CBL_INLINE Cbl2d cbl2dSplatY(Cbl2d v2d) {
+static inline Cbl2d cbl2dSplatY(Cbl2d v2d) {
     return cbl2dSplat(v2d.y_);
 }
 
-CBL_INLINE Cbl2d cbl2dAdd(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dAdd(Cbl2d lhs, Cbl2d rhs) {
     return cbl2dNew(lhs.x_ + rhs.x_, lhs.y_ + rhs.y_);
 }
 
-CBL_INLINE Cbl2d cbl2dSub(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dSub(Cbl2d lhs, Cbl2d rhs) {
     return cbl2dNew(lhs.x_ - rhs.x_, lhs.y_ - rhs.y_);
 }
 
-CBL_INLINE Cbl2d cbl2dMul(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dMul(Cbl2d lhs, Cbl2d rhs) {
     return cbl2dNew(lhs.x_ * rhs.x_, lhs.y_ * rhs.y_);
 }
 
-CBL_INLINE Cbl2d cbl2dDiv(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dDiv(Cbl2d lhs, Cbl2d rhs) {
     return cbl2dNew(lhs.x_ / rhs.x_, lhs.y_ / rhs.y_);
 }
 
-CBL_INLINE Cbl2d cbl2dRecip(Cbl2d v2d) {
+static inline Cbl2d cbl2dRecip(Cbl2d v2d) {
     return cbl2dNew(1.0 / v2d.x_, 1.0 / v2d.y_);
 }
 
-CBL_INLINE Cbl2d cbl2dSqrt(Cbl2d v2d) {
+static inline Cbl2d cbl2dSqrt(Cbl2d v2d) {
     return cbl2dNew(sqrt(v2d.x_), sqrt(v2d.x_));
 }
 
-CBL_INLINE Cbl2d cbl2dSqrtFast(Cbl2d v2d) {
+static inline Cbl2d cbl2dSqrtFast(Cbl2d v2d) {
     return cbl2dSqrt(v2d);
 }
 
-CBL_INLINE Cbl2d cbl2dRecipSqrt(Cbl2d v2d) {
+static inline Cbl2d cbl2dRecipSqrt(Cbl2d v2d) {
     return cbl2dRecip(cbl2dSqrt(v2d));
 }
 
-CBL_INLINE double cbl2dCross(Cbl2d lhs, Cbl2d rhs) {
+static inline double cbl2dCross(Cbl2d lhs, Cbl2d rhs) {
     return lhs.x_ * rhs.y_ - lhs.y_ * rhs.x_;
 }
 
-CBL_INLINE Cbl2d cbl2dMin(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dMin(Cbl2d lhs, Cbl2d rhs) {
     return cbl2dNew(fmin(lhs.x_, rhs.x_), fmin(lhs.y_, rhs.y_));
 }
 
-CBL_INLINE Cbl2d cbl2dMax(Cbl2d lhs, Cbl2d rhs) {
+static inline Cbl2d cbl2dMax(Cbl2d lhs, Cbl2d rhs) {
     return cbl2dNew(fmax(lhs.x_, rhs.x_), fmax(lhs.y_, rhs.y_));
 }
 
-CBL_INLINE Cbl2d cbl2dAbs(Cbl2d v2d) {
+static inline Cbl2d cbl2dAbs(Cbl2d v2d) {
     return cbl2dNew(fabs(v2d.x_), fabs(v2d.y_));
 }
 
-CBL_INLINE Cbl2d cbl2dNeg(Cbl2d v2d) {
+static inline Cbl2d cbl2dNeg(Cbl2d v2d) {
     return cbl2dNew(-v2d.x_, -v2d.y_);
 }
 

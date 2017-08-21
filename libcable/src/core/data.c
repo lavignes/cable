@@ -2,6 +2,7 @@
 
 #include <cable/core/data.h>
 #include <cable/core/allocator.h>
+#include <cable/core/string.h>
 
 struct CblData {
     CblConcreteObject isa;

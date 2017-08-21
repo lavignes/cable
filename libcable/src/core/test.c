@@ -2,6 +2,7 @@
 #include <cable/core/array.h>
 #include <cable/core/string.h>
 #include <cable/core/allocator.h>
+#include <cable/core/stream.h>
 
 struct CblTest {
     CblConcreteObject isa;
@@ -30,7 +31,7 @@ static CblTest *cblTestPrivateNew(CblAllocator *alloc, CblTestRunner *runner, Cb
     cblReturnUnless(runner && method && cdescription, NULL);
     CblMutableArray *conditions = cblMutableArrayNew(alloc, NULL);
     cblReturnUnless(conditions, NULL);
-    CblString *description = cblStringNewFromCString(alloc, cdescription);
+    CblString *description = cblStringNewWithCString(alloc, cdescription);
     if (!description) {
         cblDisown(conditions);
         return NULL;
@@ -63,7 +64,7 @@ void cblTestTrue(CblTest *it, const char *cdescription, bool condition) {
         it->failCount++;
     }
     CblAllocator *alloc = cblGetAllocator(it);
-    CblString *description = cblStringNewFromCFormat(alloc, condition ? "✔ it %s" : "✘ it %s", cdescription);
+    CblString *description = cblStringNewWithCFormat(alloc, condition ? "✔ it %s" : "✘ it %s", cdescription);
     cblBailUnless(description);
     cblArrayAppend(it->conditions, description);
     cblDisown(description);

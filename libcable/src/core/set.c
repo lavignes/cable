@@ -45,7 +45,7 @@ static void finalize(CblMutableSet *set) {
     cblDisown(set->buffer);
 }
 
-CBL_INLINE static size_t getDataVirtualLength(CblData *data) {
+static inline size_t getDataVirtualLength(CblData *data) {
     return cblDataGetLength(data) / sizeof(Bucket);
 }
 
@@ -53,7 +53,7 @@ static CblString *stringCallback(CblAllocator *alloc, CblMutableSet *set) {
     cblReturnUnless(set, NULL);
     const CblSetContext *context = &set->context;
     cblReturnUnless(context->stringCallback, NULL);
-    CblMutableString *string = cblMutableStringNewFromCString(alloc, "{");
+    CblMutableString *string = cblMutableStringNewWithCString(alloc, "{");
     size_t size = getDataVirtualLength(set->buffer);
     const Bucket *buckets = (Bucket *)cblDataGetBytePointer(set->buffer);
     const void *element;
@@ -84,7 +84,7 @@ static CblClass SET_CLASS = {
 
 const CblClass * const CBL_SET_CLASS = &SET_CLASS;
 
-CBL_INLINE static Bucket *getBucketForElement(const CblSetContext *context,
+static inline Bucket *getBucketForElement(const CblSetContext *context,
                                              CblMutableData *buffer,
                                              const void *element,
                                              size_t *hashCode)
@@ -117,7 +117,7 @@ CBL_INLINE static Bucket *getBucketForElement(const CblSetContext *context,
     return bucket;
 }
 
-CBL_INLINE static void expandSet(CblMutableSet *set) {
+static inline void expandSet(CblMutableSet *set) {
     const CblSetContext *context = &set->context;
     CblMutableData *newBuffer = cblMutableDataNew(cblGetAllocator(set), cblDataGetSize(set->buffer) * 2);
     size_t size = getDataVirtualLength(set->buffer);
