@@ -49,7 +49,7 @@ target_include_directories(libcable PUBLIC include)
 set_target_properties(libcable PROPERTIES OUTPUT_NAME cable)
 
 install(TARGETS libcable
-        LIBRARY DESTINATION lib/cable)
+        LIBRARY DESTINATION lib)
 install(DIRECTORY include/cable/ DESTINATION include/cable)
 
 add_subdirectory(tst)
